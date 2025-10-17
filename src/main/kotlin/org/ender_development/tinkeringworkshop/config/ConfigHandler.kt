@@ -12,25 +12,25 @@ object ConfigHandler {
     @JvmField
     @Config.Name("Default Crafting Sound")
     @Config.Comment("The sound that plays when crafting is completed. Use the format 'namespace:sound_event'.")
-    val defaultCraftingSound = "entity.item.pickup"
+    var defaultCraftingSound = "entity.item.pickup"
 
     @JvmField
     @Config.Name("Max Enchantments per Item")
     @Config.Comment("The maximum number of enchantments that can be applied to a single item.")
     @Config.RangeInt(min = 1)
-    val maxEnchantmentsPerItem = 5
+    var maxEnchantmentsPerItem = 5
 
     @JvmField
     @Config.Name("Max Diameter")
     @Config.Comment("The maximum diameter of the Tinkering Workshop will check for enchantment blocks.")
     @Config.RangeInt(min = 1, max = 17)
-    val maxDiameter = 17
+    var maxDiameter = 17
 
     @JvmField
     @Config.Name("Max Height")
     @Config.Comment("The maximum height above the Tinkering Workshop will check for enchantment blocks.")
     @Config.RangeInt(min = 1, max = 17)
-    val maxHeight = 17
+    var maxHeight = 17
 
     @Mod.EventBusSubscriber(modid = Reference.MODID)
     object ConfigEventHandler {
