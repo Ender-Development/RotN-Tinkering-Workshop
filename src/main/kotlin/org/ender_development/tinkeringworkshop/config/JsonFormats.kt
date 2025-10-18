@@ -20,8 +20,8 @@ data class Enchantment(
      * The logic to use when checking for the presence of the required blocks.
      * Possible values:
      * - "any": At least one of the specified blocks must be present.
-     * - "all": All specified blocks must be present.
-     * - if empty or miss formated, defaults to "any".
+     * - "all": All of the specified blocks must be present.
+     * - if empty or invalid, defaults to "any".
      */
     val blockLogic: String,
     /**

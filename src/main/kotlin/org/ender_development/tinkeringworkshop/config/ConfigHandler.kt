@@ -37,9 +37,8 @@ object ConfigHandler {
         @JvmStatic
         @SubscribeEvent
         fun onConfigChanged(event: ConfigChangedEvent.OnConfigChangedEvent) {
-            if (event.modID == Reference.MODID) {
+            if (event.modID == Reference.MODID)
                 ConfigManager.sync(Reference.MODID, Config.Type.INSTANCE)
-            }
         }
     }
 }

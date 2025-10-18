@@ -1,50 +1,69 @@
 package org.ender_development.tinkeringworkshop.tiles
 
+import net.minecraft.block.BlockBookshelf
 import net.minecraft.init.Blocks
 import net.minecraft.util.ITickable
-import org.ender_development.catalyx.client.AreaHighlighter
+import net.minecraft.util.math.BlockPos
 import org.ender_development.catalyx.tiles.BaseTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
-import org.ender_development.catalyx.utils.math.BlockPositions
-import org.ender_development.catalyx.utils.math.Vec3
+import org.ender_development.catalyx.utils.extensions.getAllInBox
+import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
 
 class TileTinkeringWorkshop :
     BaseTile(TinkeringWorkshop),
     IGuiTile,
-    ITickable {
+    ITickable
+{
+    var enchantingPower = 0f
 
-    val ahNZ = AreaHighlighter()
-    val ahPZ = AreaHighlighter()
-    val ahNX = AreaHighlighter()
-    val ahPX = AreaHighlighter()
-
-    fun getEnchantingPower() {
+    fun updateEnchantingPower() {
         val height = ConfigHandler.maxHeight - 1 // exclude the block the tile is in
         val radius = (ConfigHandler.maxDiameter - 1) shr 1
 
-        val cuboid = BlockPositions.hollowCuboid(Vec3(pos.x, pos.y, pos.z), radius, height, 0)
-        val (wallPX, wallNX, wallPZ, wallNZ) = cuboid.map { BlockPositions.getAllInBox(it) }
+        val cuboid = BlockPosUtils.hollowCuboid(pos, radius, height, 0).map(Pair<BlockPos, BlockPos>::getAllInBox)
 
-        // TODO ender: I have no idea if this highlighting works :/
-//        ahNZ.highlightArea(cuboid[0].first.toBlockPos(), cuboid[0].second.toBlockPos(), 0f, 1f, 0f, 2000)
-//        ahPZ.highlightArea(cuboid[1].first.toBlockPos(), cuboid[1].second.toBlockPos(), 0f, 1f, 0f, 2000)
-//        ahNX.highlightArea(cuboid[2].first.toBlockPos(), cuboid[2].second.toBlockPos(), 0f, 1f, 0f, 2000)
-//        ahPX.highlightArea(cuboid[3].first.toBlockPos(), cuboid[3].second.toBlockPos(), 0f, 1f, 0f, 2000)
+        if(DEBUG_DISPLAY_WALLS) {
+            val (wallPX, wallNX, wallPZ, wallNZ) = cuboid
+            when(timesRan) {
+                1 -> wallPX.forEach { world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
+                2 -> wallNX.forEach { world.setBlockState(it, Blocks.DIAMOND_BLOCK.defaultState) }
+                3 -> wallPZ.forEach { world.setBlockState(it, Blocks.EMERALD_BLOCK.defaultState) }
+                else -> wallNZ.forEach { world.setBlockState(it, Blocks.IRON_BLOCK.defaultState) }
+            }
+        }
 
-        wallPX.forEach { if (world.getBlockState(it).block == Blocks.AIR) world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
-        wallNX.forEach { if (world.getBlockState(it).block == Blocks.AIR) world.setBlockState(it, Blocks.DIAMOND_BLOCK.defaultState) }
-        wallPZ.forEach { if (world.getBlockState(it).block == Blocks.AIR) world.setBlockState(it, Blocks.EMERALD_BLOCK.defaultState) }
-        wallNZ.forEach { if (world.getBlockState(it).block == Blocks.AIR) world.setBlockState(it, Blocks.IRON_BLOCK.defaultState) }
+        enchantingPower = 0f
+        cuboid.forEach { wall ->
+            wall.forEach {
+                val block = world.getBlockState(it).block
+                enchantingPower += when(block) {
+                    // TODO: read from config here
+                    is BlockBookshelf -> block.getEnchantPowerBonus(world, it)
+                    else -> 0f
+                }
+            }
+        }
     }
 
-    var timer = 20
+    var timer = 2
+    var timesRan = 0
 
     override fun update() {
+        if(world.isRemote)
+            return
+
         if (timer-- == 0) {
-            getEnchantingPower()
+            @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
+            if(DEBUG_DISPLAY_WALLS && ++timesRan == 5)
+                timesRan = 1
+            updateEnchantingPower()
             timer = 20
         }
+    }
+
+    companion object {
+        const val DEBUG_DISPLAY_WALLS = true
     }
 }
