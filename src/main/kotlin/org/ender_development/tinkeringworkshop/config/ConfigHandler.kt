@@ -23,7 +23,7 @@ object ConfigHandler {
     @JvmField
     @Config.Name("Max Diameter")
     @Config.Comment("The maximum diameter of the Tinkering Workshop will check for enchantment blocks.")
-    @Config.RangeInt(min = 1, max = 17)
+    @Config.RangeInt(min = 2, max = 17)
     var maxDiameter = 17
 
     @JvmField
