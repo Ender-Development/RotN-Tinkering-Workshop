@@ -2,11 +2,15 @@ package org.ender_development.tinkeringworkshop
 
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 import org.apache.logging.log4j.Logger
 import org.ender_development.catalyx.client.gui.CatalyxGuiHandler
 import org.ender_development.catalyx.core.ICatalyxMod
 import org.ender_development.tinkeringworkshop.blocks.ModBlocks
+import org.ender_development.tinkeringworkshop.command.TWCommand
+import org.ender_development.tinkeringworkshop.config.EnchantmentParser
 
 @Mod(
     modid = Reference.MODID,
@@ -17,7 +21,7 @@ import org.ender_development.tinkeringworkshop.blocks.ModBlocks
 )
 @Mod.EventBusSubscriber
 object TinkeringWorkshop : ICatalyxMod {
-    override val creativeTab: CreativeTabs = CreativeTabs.MISC
+    override val creativeTab: CreativeTabs = CreativeTabs.DECORATIONS
 
     val guiHandler = CatalyxGuiHandler(this)
 
@@ -26,6 +30,16 @@ object TinkeringWorkshop : ICatalyxMod {
     @Mod.EventHandler
     fun preInit(ev: FMLPreInitializationEvent) {
         logger = ev.modLog
+    }
+
+    @Mod.EventHandler
+    fun postInit(ev: FMLPostInitializationEvent) {
+        EnchantmentParser.loadFromJson()
+    }
+
+    @Mod.EventHandler
+    fun starting(ev: FMLServerStartingEvent) {
+        ev.registerServerCommand(TWCommand)
     }
 
     init {

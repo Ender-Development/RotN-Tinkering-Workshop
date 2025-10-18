@@ -10,6 +10,11 @@ import org.ender_development.tinkeringworkshop.Reference
 @Config(modid = Reference.MODID, name = "${Reference.MODID}/general")
 object ConfigHandler {
     @JvmField
+    @Config.Name("DEBUG MODE")
+    @Config.Comment("Enables debug mode for additional logging and information.")
+    var debugMode = false
+
+    @JvmField
     @Config.Name("Default Crafting Sound")
     @Config.Comment("The sound that plays when crafting is completed. Use the format 'namespace:sound_event'.")
     var defaultCraftingSound = "entity.item.pickup"
