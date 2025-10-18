@@ -22,7 +22,9 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
     override val json = File(Loader.instance().configDir, "/${Reference.MODID}/enchantments.json")
 
     override fun loadFromJson() {
-        if (!json.exists() || ConfigHandler.debugMode) {
+        dataRaw.clear()
+        dataSanitized.clear()
+        if (!json.exists()) {
             TinkeringWorkshop.logger.warn("Enchantment configuration file not found: ${json.absolutePath}")
             generateDefaultConfig(json)
         }
@@ -62,8 +64,7 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
                         mapLevelCost = levelCost,
                         mapBookshelfPower = bookshelfPower,
                     )
-                } ?: TinkeringWorkshop.logger.warn("Enchantment not found: ${it.enchantment}")
-                return@map null
+                } ?: TinkeringWorkshop.logger.warn("Enchantment not found: ${it.enchantment}").let { null }
             }.filterNotNull(),
         )
     }

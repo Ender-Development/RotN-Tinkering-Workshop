@@ -4,8 +4,6 @@ import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.inventory.IInventory
 import net.minecraft.util.ResourceLocation
-import org.ender_development.catalyx.client.gui.wrappers.CapabilityEnergyDisplayWrapper
-import org.ender_development.catalyx.client.gui.wrappers.CapabilityFluidDisplayWrapper
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
 import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
