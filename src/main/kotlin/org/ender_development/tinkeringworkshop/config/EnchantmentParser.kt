@@ -10,7 +10,9 @@ import java.io.File
 import java.util.Locale
 
 enum class BlockCheckLogic {
-    ANY, ALL, SINGLE
+    ANY,
+    ALL,
+    SINGLE,
 }
 
 object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
@@ -36,32 +38,34 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
     }
 
     override fun sanitizeData() {
-        dataSanitized.addAll(dataRaw.map {
-            val enchResLoc = ResourceLocation(it.enchantment ?: "")
-            val enchantment = Enchantment.REGISTRY.getObject(enchResLoc)
-            enchantment?.let { ench ->
-                val blocks = it.blocks?.mapNotNull { block -> ConfigParser.ConfigBlockState(block).state ?: TinkeringWorkshop.logger.error("Block not found: $block").let { null } } ?: emptyList()
-                val blockLogic = when (it.blockLogic?.lowercase(Locale.ROOT)) {
-                    "all" -> BlockCheckLogic.ALL
-                    "single" -> BlockCheckLogic.SINGLE
-                    else -> BlockCheckLogic.ANY
-                }
-                val levelCost = it.mapLevelCost?.map { (level, cost) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to cost.coerceAtLeast(1) }?.toMap()
-                    ?: TinkeringWorkshop.logger.error("Found an error parsing the level costs for: ${it.enchantment}").let { emptyMap<EnchantmentLevel, ExperienceLevel>() }
-                val bookshelfPower = it.mapBookshelfPower?.map { (level, power) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to power.toDouble().coerceAtLeast(0.0) }?.toMap()
-                    ?: TinkeringWorkshop.logger.error("Found an error parsing the bookshelf power for: ${it.enchantment}").let { emptyMap<EnchantmentLevel, BookshelfPower>() }
+        dataSanitized.addAll(
+            dataRaw.map {
+                val enchResLoc = ResourceLocation(it.enchantment ?: "")
+                val enchantment = Enchantment.REGISTRY.getObject(enchResLoc)
+                enchantment?.let { ench ->
+                    val blocks = it.blocks?.mapNotNull { block -> ConfigParser.ConfigBlockState(block).state ?: TinkeringWorkshop.logger.error("Block not found: $block").let { null } } ?: emptyList()
+                    val blockLogic = when (it.blockLogic?.lowercase(Locale.ROOT)) {
+                        "all" -> BlockCheckLogic.ALL
+                        "single" -> BlockCheckLogic.SINGLE
+                        else -> BlockCheckLogic.ANY
+                    }
+                    val levelCost = it.mapLevelCost?.map { (level, cost) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to cost.coerceAtLeast(1) }?.toMap()
+                        ?: TinkeringWorkshop.logger.error("Found an error parsing the level costs for: ${it.enchantment}").let { emptyMap<EnchantmentLevel, ExperienceLevel>() }
+                    val bookshelfPower = it.mapBookshelfPower?.map { (level, power) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to power.toDouble().coerceAtLeast(0.0) }?.toMap()
+                        ?: TinkeringWorkshop.logger.error("Found an error parsing the bookshelf power for: ${it.enchantment}").let { emptyMap<EnchantmentLevel, BookshelfPower>() }
 
-                return@map TwEnchantment(
-                    enchantment = enchantment,
-                    blocks = blocks,
-                    blockLogic = blockLogic,
-                    sound = it.sound?.let { ResourceLocation(it) } ?: ResourceLocation(ConfigHandler.defaultCraftingSound),
-                    mapLevelCost = levelCost,
-                    mapBookshelfPower = bookshelfPower,
-                )
-            } ?: TinkeringWorkshop.logger.warn("Enchantment not found: ${it.enchantment}")
-            return@map null
-        }.filterNotNull())
+                    return@map TwEnchantment(
+                        enchantment = enchantment,
+                        blocks = blocks,
+                        blockLogic = blockLogic,
+                        sound = it.sound?.let { ResourceLocation(it) } ?: ResourceLocation(ConfigHandler.defaultCraftingSound),
+                        mapLevelCost = levelCost,
+                        mapBookshelfPower = bookshelfPower,
+                    )
+                } ?: TinkeringWorkshop.logger.warn("Enchantment not found: ${it.enchantment}")
+                return@map null
+            }.filterNotNull(),
+        )
     }
 
     override fun generateDefaultConfig(file: File) {
@@ -77,7 +81,7 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
                     sound = null,
                     mapLevelCost = (ench.minLevel..ench.maxLevel).associate { it to (it * rarity).coerceAtLeast(1) },
                     mapBookshelfPower = (ench.minLevel..ench.maxLevel).associate { it to (it * rarity * ench.rarity.ordinal).toDouble() },
-                )
+                ),
             )
         }
         try {

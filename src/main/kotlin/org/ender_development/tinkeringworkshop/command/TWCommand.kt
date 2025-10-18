@@ -6,7 +6,7 @@ import net.minecraftforge.server.command.CommandTreeBase
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.config.EnchantmentParser
 
-object TWCommand: CommandTreeBase() {
+object TWCommand : CommandTreeBase() {
     override fun getName() = Reference.MODID
 
     override fun getUsage(sender: ICommandSender) = Reference.MOD_NAME
@@ -17,7 +17,7 @@ object TWCommand: CommandTreeBase() {
         addSubcommand(CopyEnchantment)
     }
 
-    object Reload: CommandBase() {
+    object Reload : CommandBase() {
         override fun getName() = "reload"
 
         override fun getUsage(sender: ICommandSender) = "Reloads the Tinkering Workshop configuration files."
@@ -28,7 +28,7 @@ object TWCommand: CommandTreeBase() {
         }
     }
 
-    object CopyBlock: CommandBase() {
+    object CopyBlock : CommandBase() {
         override fun getName() = "copyblock"
 
         override fun getUsage(sender: ICommandSender) = "Copies a default json for the hold or looked at block to the clipboard."
@@ -38,7 +38,7 @@ object TWCommand: CommandTreeBase() {
         }
     }
 
-    object CopyEnchantment: CommandBase() {
+    object CopyEnchantment : CommandBase() {
         override fun getName() = "copyenchantment"
 
         override fun getUsage(sender: ICommandSender) = "Copies a default json for all enchantments on the hold item to the clipboard."
@@ -47,5 +47,4 @@ object TWCommand: CommandTreeBase() {
             notifyCommandListener(sender, this, "Not implemented yet.")
         }
     }
-
 }

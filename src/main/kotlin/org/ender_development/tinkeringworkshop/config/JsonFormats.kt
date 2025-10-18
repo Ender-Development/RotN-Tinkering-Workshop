@@ -55,12 +55,14 @@ data class TwRawEnchantment(
     internal val mapBookshelfPower: Map<EnchantmentLevel, BookshelfPower>?,
 ) : ISerializable
 
-data class TwEnchantment(val enchantment: Enchantment,
-                         val blocks: List<IBlockState>,
-                         val blockLogic: BlockCheckLogic,
-                         val sound: ResourceLocation,
-                         val mapLevelCost: Map<EnchantmentLevel, ExperienceLevel>,
-                         val mapBookshelfPower: Map<EnchantmentLevel, BookshelfPower>) : ISanitized
+data class TwEnchantment(
+    val enchantment: Enchantment,
+    val blocks: List<IBlockState>,
+    val blockLogic: BlockCheckLogic,
+    val sound: ResourceLocation,
+    val mapLevelCost: Map<EnchantmentLevel, ExperienceLevel>,
+    val mapBookshelfPower: Map<EnchantmentLevel, BookshelfPower>,
+) : ISanitized
 
 /**
  * Representation of a bookshelf block configuration for the Tinkering Workshop.
