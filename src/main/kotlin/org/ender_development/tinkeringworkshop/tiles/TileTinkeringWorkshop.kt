@@ -33,7 +33,7 @@ class TileTinkeringWorkshop :
 
         val cuboid = BlockPosUtils.hollowCuboid(pos, radius, height, 0).map(Pair<BlockPos, BlockPos>::getAllInBox)
 
-        if (DEBUG_DISPLAY_WALLS) {
+        if (ConfigHandler.debugMode) {
             val (wallPX, wallNX, wallPZ, wallNZ) = cuboid
             when (timesRan) {
                 1 -> wallPX.forEach { world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
@@ -64,16 +64,11 @@ class TileTinkeringWorkshop :
         }
 
         if (timer-- == 0) {
-            @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
-            if (DEBUG_DISPLAY_WALLS && ++timesRan == 5) {
+            if (ConfigHandler.debugMode && ++timesRan == 5) {
                 timesRan = 1
             }
             updateEnchantingPower()
             timer = 20
         }
-    }
-
-    companion object {
-        const val DEBUG_DISPLAY_WALLS = false
     }
 }
