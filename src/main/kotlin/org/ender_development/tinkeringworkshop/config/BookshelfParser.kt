@@ -8,9 +8,9 @@ import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import java.io.File
 
-object BookshelfParser : IParser<TwRawBookshelf, TwBookshelf> {
-    override val dataRaw = mutableListOf<TwRawBookshelf>()
-    override val dataSanitized = mutableListOf<TwBookshelf>()
+object BookshelfParser : IParser<TWRawBookshelf, TWBookshelf> {
+    override val dataRaw = mutableListOf<TWRawBookshelf>()
+    override val dataSanitized = mutableListOf<TWBookshelf>()
     override val json = File(Loader.instance().configDir, "/${Reference.MODID}/bookshelfs.json")
 
     override fun loadFromJson() {
@@ -22,7 +22,7 @@ object BookshelfParser : IParser<TwRawBookshelf, TwBookshelf> {
         }
         try {
             val fileContent = json.readText()
-            dataRaw.addAll(gson.fromJson(fileContent, Array<TwRawBookshelf>::class.java))
+            dataRaw.addAll(gson.fromJson(fileContent, Array<TWRawBookshelf>::class.java))
             TinkeringWorkshop.logger.info("Loaded ${dataRaw.size} bookshelf configurations.")
         } catch (e: Exception) {
             TinkeringWorkshop.logger.error("Failed to load bookshelf configuration from ${json.absolutePath}", e)
@@ -37,7 +37,7 @@ object BookshelfParser : IParser<TwRawBookshelf, TwBookshelf> {
                 it.block ?: TinkeringWorkshop.logger.error("Bookshelf block is null in config: $it").let { return@map null }
                 val blockState = ConfigParser.ConfigBlockState(it.block).state
                 blockState?.let { bs ->
-                    TwBookshelf(
+                    TWBookshelf(
                         blockState = bs,
                         power = it.power?.coerceAtLeast(0.0) ?: 0.0,
                         simultaneousEnchantment = it.simultaneousEnchantment?.coerceAtLeast(1) ?: 1,
@@ -49,9 +49,9 @@ object BookshelfParser : IParser<TwRawBookshelf, TwBookshelf> {
     }
 
     override fun generateDefaultConfig(file: File) {
-        val cfg = mutableListOf<TwRawBookshelf>()
+        val cfg = mutableListOf<TWRawBookshelf>()
         cfg.add(
-            TwRawBookshelf(
+            TWRawBookshelf(
                 _comment = "Example bookshelf configuration",
                 block = "minecraft:bookshelf",
                 power = 1.0,
@@ -69,11 +69,11 @@ object BookshelfParser : IParser<TwRawBookshelf, TwBookshelf> {
         }
     }
 
-    override fun get(name: ResourceLocation): TwBookshelf? = dataSanitized.find { it.blockState.block.registryName == name }
+    override operator fun get(name: ResourceLocation): TWBookshelf? = dataSanitized.find { it.blockState.block.registryName == name }
 }
 
-fun String.toBookshelf(): TwBookshelf? = ResourceLocation(this).toBookshelf()
+fun String.toBookshelf(): TWBookshelf? = ResourceLocation(this).toBookshelf()
 
-fun ResourceLocation.toBookshelf(): TwBookshelf? = BookshelfParser.get(this)
+fun ResourceLocation.toBookshelf(): TWBookshelf? = BookshelfParser.get(this)
 
-fun ItemStack.toBookshelf(): TwBookshelf? = this.item.registryName?.toBookshelf() ?: TinkeringWorkshop.logger.info("No bookshelf found for item: ${this.item.registryName}").let { null }
+fun ItemStack.toBookshelf(): TWBookshelf? = this.item.registryName?.toBookshelf() ?: TinkeringWorkshop.logger.info("No bookshelf found for item: ${this.item.registryName}").let { null }

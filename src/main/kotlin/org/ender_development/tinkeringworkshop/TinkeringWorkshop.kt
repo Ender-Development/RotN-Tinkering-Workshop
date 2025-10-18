@@ -55,7 +55,7 @@ object TinkeringWorkshop : ICatalyxMod {
 
     @SubscribeEvent
     fun tooltip(ev: ItemTooltipEvent) {
-        if (ConfigHandler.debugMode.not()) return
+        if (!ConfigHandler.debugMode) return
         ev.itemStack.toBookshelf()?.let {
             ev.toolTip.addAll(
                 listOf(

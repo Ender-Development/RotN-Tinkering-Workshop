@@ -15,7 +15,7 @@ interface ISanitized
  * Representation of an enchantment configuration for the Tinkering Workshop.
  * Intended to be deserialized from JSON.
  */
-data class TwRawEnchantment(
+data class TWRawEnchantment(
     internal val _comment: String? = null,
     /**
      * The registry name of the [net.minecraft.enchantment.Enchantment]
@@ -50,12 +50,12 @@ data class TwRawEnchantment(
     /**
      * A map of enchantment levels to the total bookshelf power required to apply that level.
      * For example, a mapping of 2 to 15 means that to apply level 2 of the enchantment,
-     * the Workshop must have at least 15 total bookshelf power from the surrounding [TwRawBookshelf]`s`.
+     * the Workshop must have at least 15 total bookshelf power from the surrounding [TWRawBookshelf]`s`.
      */
     internal val mapBookshelfPower: Map<EnchantmentLevel, BookshelfPower>?,
 ) : ISerializable
 
-data class TwEnchantment(
+data class TWEnchantment(
     val enchantment: Enchantment,
     val blocks: List<IBlockState>,
     val blockLogic: BlockCheckLogic,
@@ -68,7 +68,7 @@ data class TwEnchantment(
  * Representation of a bookshelf block configuration for the Tinkering Workshop.
  * Intended to be deserialized from JSON.
  */
-data class TwRawBookshelf(
+data class TWRawBookshelf(
     internal val _comment: String? = null,
     /**
      * The [net.minecraft.block.state.IBlockState] of the bookshelf
@@ -93,4 +93,4 @@ data class TwRawBookshelf(
     internal val maxConsidered: Int?,
 ) : ISerializable
 
-data class TwBookshelf(val blockState: IBlockState, val power: BookshelfPower, val simultaneousEnchantment: Int, val maxConsidered: Int) : ISanitized
+data class TWBookshelf(val blockState: IBlockState, val power: BookshelfPower, val simultaneousEnchantment: Int, val maxConsidered: Int) : ISanitized

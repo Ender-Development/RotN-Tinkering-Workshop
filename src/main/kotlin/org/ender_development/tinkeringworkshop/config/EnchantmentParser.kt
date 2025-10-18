@@ -15,9 +15,9 @@ enum class BlockCheckLogic {
     SINGLE,
 }
 
-object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
-    override val dataRaw = mutableListOf<TwRawEnchantment>()
-    override val dataSanitized = mutableListOf<TwEnchantment>()
+object EnchantmentParser : IParser<TWRawEnchantment, TWEnchantment> {
+    override val dataRaw = mutableListOf<TWRawEnchantment>()
+    override val dataSanitized = mutableListOf<TWEnchantment>()
 
     override val json = File(Loader.instance().configDir, "/${Reference.MODID}/enchantments.json")
 
@@ -30,7 +30,7 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
         }
         try {
             val fileContent = json.readText()
-            dataRaw.addAll(gson.fromJson(fileContent, Array<TwRawEnchantment>::class.java))
+            dataRaw.addAll(gson.fromJson(fileContent, Array<TWRawEnchantment>::class.java))
             TinkeringWorkshop.logger.info("Loaded ${dataRaw.size} enchantment configurations.")
         } catch (e: Exception) {
             TinkeringWorkshop.logger.error("Failed to load enchantment configuration from ${json.absolutePath}", e)
@@ -56,7 +56,7 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
                     val bookshelfPower = it.mapBookshelfPower?.map { (level, power) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to power.toDouble().coerceAtLeast(0.0) }?.toMap()
                         ?: TinkeringWorkshop.logger.error("Found an error parsing the bookshelf power for: ${it.enchantment}").let { emptyMap<EnchantmentLevel, BookshelfPower>() }
 
-                    return@map TwEnchantment(
+                    return@map TWEnchantment(
                         enchantment = enchantment,
                         blocks = blocks,
                         blockLogic = blockLogic,
@@ -70,11 +70,11 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
     }
 
     override fun generateDefaultConfig(file: File) {
-        val cfg = mutableListOf<TwRawEnchantment>()
+        val cfg = mutableListOf<TWRawEnchantment>()
         Enchantment.REGISTRY.forEach { ench ->
             val rarity = 10 - ench.rarity.weight
             cfg.add(
-                TwRawEnchantment(
+                TWRawEnchantment(
                     _comment = "This configuration is auto-generated. Modify as needed.",
                     enchantment = ench.registryName.toString(),
                     blocks = null,
@@ -94,9 +94,9 @@ object EnchantmentParser : IParser<TwRawEnchantment, TwEnchantment> {
         }
     }
 
-    override fun get(name: ResourceLocation): TwEnchantment? = dataSanitized.find { it.enchantment.registryName == name }
+    override operator fun get(name: ResourceLocation): TWEnchantment? = dataSanitized.find { it.enchantment.registryName == name }
 }
 
-fun String.asEnchantment(): TwEnchantment? = ResourceLocation(this).asEnchantment()
+fun String.asEnchantment(): TWEnchantment? = ResourceLocation(this).asEnchantment()
 
-fun ResourceLocation.asEnchantment(): TwEnchantment? = EnchantmentParser.get(this)
+fun ResourceLocation.asEnchantment(): TWEnchantment? = EnchantmentParser.get(this)

@@ -45,5 +45,5 @@ interface IParser<R : ISerializable, S : ISanitized> {
     /**
      * Retrieves a configuration entry by its [name].
      */
-    fun get(name: ResourceLocation): S?
+    operator fun get(name: ResourceLocation): S?
 }
