@@ -1,0 +1,87 @@
+{
+  "format_version": "1.9.0",
+  "credit": "Made with Blockbench",
+  "textures": {
+    "0": "tinkeringworkshop:blocks/logo-1024x1024",
+    "particle": "tinkeringworkshop:blocks/logo-1024x1024"
+  },
+  "elements": [
+    {
+      "from": [
+        -16,
+        0,
+        -16
+      ],
+      "to": [
+        32,
+        16,
+        32
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          -12,
+          0,
+          22
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            11.8125,
+            0,
+            16,
+            5.26563
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0,
+            0.03125,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0.76563,
+            5.01563,
+            14.53125,
+            14.29688
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            10.6875,
+            8.67188,
+            13.35938,
+            11.39063
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

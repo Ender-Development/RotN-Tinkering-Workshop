@@ -20,6 +20,9 @@ class TileTinkeringWorkshop :
         initInventoryCapability(1, 0)
     }
 
+    override val guiWidth = 176
+    override val guiHeight = 222
+
     override fun initInventoryInputCapability() {
         // TODO
         super.initInventoryInputCapability()

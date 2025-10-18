@@ -5,6 +5,7 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
+import net.minecraftforge.fml.common.network.NetworkRegistry
 import org.apache.logging.log4j.Logger
 import org.ender_development.catalyx.client.gui.CatalyxGuiHandler
 import org.ender_development.catalyx.core.ICatalyxMod
@@ -30,6 +31,7 @@ object TinkeringWorkshop : ICatalyxMod {
     @Mod.EventHandler
     fun preInit(ev: FMLPreInitializationEvent) {
         logger = ev.modLog
+        NetworkRegistry.INSTANCE.registerGuiHandler(TinkeringWorkshop, guiHandler)
     }
 
     @Mod.EventHandler
