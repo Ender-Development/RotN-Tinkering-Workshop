@@ -9,6 +9,7 @@ import util.EnumProvider
 import util.Maven
 import util.ModDependency
 import util.Modrinth
+import util.toProvider
 import java.io.File
 import java.util.Properties
 
@@ -47,11 +48,14 @@ class DepLoader : Plugin<Project> {
         private fun populateDependencies() {
             loadedProperties.forEach { (key, value) ->
                 val (providerKey, variableKey) = key.split(".")
-                val provider = EnumProvider.values().first { it.shortName == providerKey }
+                val provider = providerKey.toProvider()
                 if (variableKey == "examplemod") return@forEach // Skip 'examplemod'
+
                 val enabled = value["enabled"]?.toBoolean() ?: throw GradleException("Missing 'enabled' property for $key")
                 val transitive = value["transitive"]?.toBoolean()
                 val changing = value["changing"]?.toBoolean()
+                val configuration = value["configuration"]
+
                 val dependency = when {
                     provider == EnumProvider.CURSEFORGE &&
                         value.keys.containsAll(
@@ -65,6 +69,7 @@ class DepLoader : Plugin<Project> {
                         value["projectId"]!!,
                         value["fileId"]!!,
                         enabled,
+                        configuration,
                         transitive,
                         changing,
                     )
@@ -74,6 +79,7 @@ class DepLoader : Plugin<Project> {
                         value["artifact"]!!,
                         value["version"]!!,
                         enabled,
+                        configuration,
                         transitive,
                         changing,
                     )
@@ -82,6 +88,7 @@ class DepLoader : Plugin<Project> {
                         value["projectId"]!!,
                         value["version"]!!,
                         enabled,
+                        configuration,
                         transitive,
                         changing,
                     )
@@ -93,22 +100,20 @@ class DepLoader : Plugin<Project> {
         }
 
         /**
-         * Retrieves the map of enabled status to ModDependency instances.
-         * If dependencies have not been loaded yet, it attempts to load them from the properties file.
-         *
-         * @return A map where the key is a Boolean indicating if the dependency is enabled,
-         *         and the value is the corresponding ModDependency instance.
+         * Gets the list of mod dependencies.
+         * If the dependencies list is empty, it attempts to load them from the `dependencies.properties` file.
+         * @return A list of [ModDependency] objects.
          */
-        fun get(): Map<Boolean, ModDependency> {
+        fun get(): List<ModDependency> {
             if (dependencies.isEmpty() && File(DEPENDENCIES).exists()) {
                 val props = Loader.loadPropertyFromFile(DEPENDENCIES)
-                if (props.isEmpty) return emptyMap()
+                if (props.isEmpty) return emptyList()
                 groupProperties(props)
                 populateDependencies()
                 if (dependencies.isEmpty().not()) Logger.warn("Dependencies have not been loaded until now, was the plugin not applied?")
             }
             Logger.info("Found ${dependencies.size} external dependenc${if (dependencies.size == 1) "y" else "ies"}")
-            return dependencies.associate { it.enabled to it.modDependency() }
+            return dependencies.map { it.modDependency() }
         }
     }
 

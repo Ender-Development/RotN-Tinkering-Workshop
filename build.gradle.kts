@@ -114,12 +114,19 @@ dependencies {
     if (propertyBoolean("use_top")) dep(EnumConfiguration.IMPLEMENTATION, top) else dep(EnumConfiguration.COMPILE_ONLY, (rfg.deobf(top)))
 
     // Additional dependencies
-    DepLoader.get().forEach { (enabled, dependency) ->
+    DepLoader.get().forEach {
+        val runtimeOnly = it.configuration == EnumConfiguration.RUNTIME_ONLY
+        if (!it.enabled && runtimeOnly) {
+            // Skip disabled runtime-only dependencies
+            Logger.info("Skipping disabled runtime-only dependency: ${it.source}")
+            return@forEach
+        }
         dep(
-            if (enabled) EnumConfiguration.IMPLEMENTATION else EnumConfiguration.COMPILE_ONLY,
-            (rfg.deobf(dependency.first)),
-            dependency.second.first,
-            dependency.second.second,
+            it.configuration,
+            // Use deobfuscated version for compile-time if not runtime-only
+            if (runtimeOnly) it.source else (rfg.deobf(it.source)),
+            it.transitive,
+            it.changing,
         )
     }
 }
@@ -308,7 +315,7 @@ idea {
         settings {
             taskTriggers { afterSync("catalyxAfterSync") }
             runConfigurations {
-                var index = 1
+                var index = 0
                 add(Gradle("${index++}. Setup Workspace").apply { setProperty("taskNames", listOf("setupDecompWorkspace")) })
                 add(Gradle("${index++}. Run Client").apply { setProperty("taskNames", listOf("runClient")) })
                 add(Gradle("${index++}. Run Server").apply { setProperty("taskNames", listOf("runServer")) })

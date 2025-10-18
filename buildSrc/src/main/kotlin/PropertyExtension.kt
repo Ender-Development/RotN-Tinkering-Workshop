@@ -106,8 +106,7 @@ fun Project.propertyString(propertyName: PropertyName): PropertyValue = evalProp
  * @return The value of the property as a List of Strings.
  * @throws GradleException if the property does not exist.
  */
-fun Project.propertyStringList(propertyName: PropertyName, delimiter: String = " "): MutableList<PropertyValue> =
-    propertyString(propertyName).split(delimiter).filter { it.isNotEmpty() }.toMutableList()
+fun Project.propertyStringList(propertyName: PropertyName, delimiter: String = " "): MutableList<PropertyValue> = propertyString(propertyName).split(delimiter).filter { it.isNotEmpty() }.toMutableList()
 
 /**
  * Retrieves the value of a property as a Boolean.
@@ -144,6 +143,10 @@ fun Project.propertyDefaultIfUnsetWithEnvVar(propertyName: PropertyName, envVarN
     // If neither is found it will return null.
     val envVarValue = Secrets.getOrEnvironment(envVarName)
     envVarValue?.let {
-        project.extensions.extraProperties.set(propertyName, it)
+        if (it.isNotEmpty()) {
+            project.extensions.extraProperties.set(propertyName, it)
+        } else {
+            propertyDefaultIfUnset(propertyName, defaultValue)
+        }
     } ?: propertyDefaultIfUnset(propertyName, defaultValue)
 }

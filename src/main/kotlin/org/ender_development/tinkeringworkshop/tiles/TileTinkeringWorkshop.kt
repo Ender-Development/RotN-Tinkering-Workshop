@@ -14,8 +14,7 @@ import org.ender_development.tinkeringworkshop.config.ConfigHandler
 class TileTinkeringWorkshop :
     BaseTile(TinkeringWorkshop),
     IGuiTile,
-    ITickable
-{
+    ITickable {
 
     init {
         initInventoryCapability(1, 0)
@@ -34,21 +33,20 @@ class TileTinkeringWorkshop :
 
         val cuboid = BlockPosUtils.hollowCuboid(pos, radius, height, 0).map(Pair<BlockPos, BlockPos>::getAllInBox)
 
-        if(DEBUG_DISPLAY_WALLS) {
+        if (DEBUG_DISPLAY_WALLS) {
             val (wallPX, wallNX, wallPZ, wallNZ) = cuboid
-            when(timesRan) {
+            when (timesRan) {
                 1 -> wallPX.forEach { world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
                 2 -> wallNX.forEach { world.setBlockState(it, Blocks.DIAMOND_BLOCK.defaultState) }
                 3 -> wallPZ.forEach { world.setBlockState(it, Blocks.EMERALD_BLOCK.defaultState) }
                 else -> wallNZ.forEach { world.setBlockState(it, Blocks.IRON_BLOCK.defaultState) }
             }
         }
-
         enchantingPower = 0f
         cuboid.forEach { wall ->
             wall.forEach {
                 val block = world.getBlockState(it).block
-                enchantingPower += when(block) {
+                enchantingPower += when (block) {
                     // TODO: read from config here
                     is BlockBookshelf -> block.getEnchantPowerBonus(world, it)
                     else -> 0f
@@ -61,13 +59,15 @@ class TileTinkeringWorkshop :
     var timesRan = 0
 
     override fun update() {
-        if(world.isRemote)
+        if (world.isRemote) {
             return
+        }
 
         if (timer-- == 0) {
             @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
-            if(DEBUG_DISPLAY_WALLS && ++timesRan == 5)
+            if (DEBUG_DISPLAY_WALLS && ++timesRan == 5) {
                 timesRan = 1
+            }
             updateEnchantingPower()
             timer = 20
         }
