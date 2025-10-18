@@ -16,6 +16,16 @@ class TileTinkeringWorkshop :
     IGuiTile,
     ITickable
 {
+
+    init {
+        initInventoryCapability(1, 0)
+    }
+
+    override fun initInventoryInputCapability() {
+        // TODO
+        super.initInventoryInputCapability()
+    }
+
     var enchantingPower = 0f
 
     fun updateEnchantingPower() {
@@ -64,6 +74,6 @@ class TileTinkeringWorkshop :
     }
 
     companion object {
-        const val DEBUG_DISPLAY_WALLS = true
+        const val DEBUG_DISPLAY_WALLS = false
     }
 }
