@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos
 import org.ender_development.catalyx.tiles.BaseTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
 import org.ender_development.catalyx.tiles.helper.TileStackHandler
+import org.ender_development.catalyx.utils.Delegates
 import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
@@ -18,6 +19,8 @@ import org.ender_development.tinkeringworkshop.config.ConfigHandler
 typealias Limit = Int
 typealias Current = Int
 
+data class BlockCount(val limit: Limit, var current: Current)
+
 class TileTinkeringWorkshop :
     BaseTile(TinkeringWorkshop),
     IGuiTile,
@@ -25,7 +28,14 @@ class TileTinkeringWorkshop :
 
     override val enableItemCapability = false
 
-    val blockLimits = mutableMapOf<IBlockState, Pair<Limit, Current>>()
+    val blockLimits = mutableMapOf<IBlockState, BlockCount>()
+    val blockPositions: Array<BlockPos> by Delegates.lazyProperty { // 1088
+        val height = ConfigHandler.maxHeight - 1 // exclude the block the tile is in
+        val radius = (ConfigHandler.maxDiameter - 1) shr 1
+        val list = mutableListOf<BlockPos>()
+        BlockPosUtils.hollowCuboid(pos, radius, height, 0).forEach { list.addAll(it.getAllInBox()) }
+        return@lazyProperty list.toTypedArray()
+    }
 
     init {
         initInventoryCapability(2, 0)
@@ -47,35 +57,22 @@ class TileTinkeringWorkshop :
     var enchantingPower = 0.0
 
     fun updateEnchantingPower() {
-        val height = ConfigHandler.maxHeight - 1 // exclude the block the tile is in
-        val radius = (ConfigHandler.maxDiameter - 1) shr 1
-
-        val cuboid = BlockPosUtils.hollowCuboid(pos, radius, height, 0).map(Pair<BlockPos, BlockPos>::getAllInBox)
-
         if (ConfigHandler.debugMode) {
-            val (wallPX, wallNX, wallPZ, wallNZ) = cuboid
-            when (timesRan) {
-                1 -> wallPX.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
-                2 -> wallNX.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.DIAMOND_BLOCK.defaultState) }
-                3 -> wallPZ.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.EMERALD_BLOCK.defaultState) }
-                else -> wallNZ.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.IRON_BLOCK.defaultState) }
+            blockPositions.forEach {
+                @Suppress("DEPRECATION")
+                if (world.isAirBlock(it))
+                    world.setBlockState(it, Blocks.CONCRETE.getStateFromMeta(14))
             }
         }
         val oldEnchantingPower = enchantingPower
         enchantingPower = 0.0
         blockLimits.clear()
-        cuboid.forEach { wall ->
-            wall.forEach {
-                BookshelfParser[world.getBlockState(it)]?.let { bs ->
-                    blockLimits[bs.blockState]?.let { limitPair ->
-                        if (limitPair.second < limitPair.first) {
-                            enchantingPower += bs.power
-                            blockLimits[bs.blockState] = Pair(limitPair.first, limitPair.second + 1)
-                        }
-                    } ?: run {
-                        enchantingPower += bs.power
-                        blockLimits[bs.blockState] = Pair(bs.maxConsidered, 1)
-                    }
+        blockPositions.forEach {
+            BookshelfParser[world.getBlockState(it)]?.let { state ->
+                val count = blockLimits.getOrPut(state.blockState) { BlockCount(0, 0) }
+                if(count.current < count.limit) {
+                    enchantingPower += state.power
+                    ++count.current
                 }
             }
         }
@@ -85,7 +82,6 @@ class TileTinkeringWorkshop :
     }
 
     var timer = 2
-    var timesRan = 0
 
     override fun update() {
         if (world.isRemote) {
@@ -93,11 +89,8 @@ class TileTinkeringWorkshop :
         }
 
         if (timer-- == 0) {
-            if (ConfigHandler.debugMode && ++timesRan == 5) {
-                timesRan = 1
-            }
             updateEnchantingPower()
-            timer = 20
+            timer = 30
         }
     }
 }
