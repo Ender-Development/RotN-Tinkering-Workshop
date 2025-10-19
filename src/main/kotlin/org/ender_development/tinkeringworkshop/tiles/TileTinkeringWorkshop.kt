@@ -25,7 +25,7 @@ class TileTinkeringWorkshop :
 
     override val enableItemCapability = false
 
-    val blockLimits = mapOf<IBlockState, Pair<Limit, Current>>()
+    val blockLimits = mutableMapOf<IBlockState, Pair<Limit, Current>>()
 
     init {
         initInventoryCapability(2, 0)
@@ -63,7 +63,22 @@ class TileTinkeringWorkshop :
         }
         val oldEnchantingPower = enchantingPower
         enchantingPower = 0.0
-        cuboid.forEach { wall -> wall.forEach { BookshelfParser[world.getBlockState(it)]?.let { bs -> enchantingPower += bs.power } } }
+        blockLimits.clear()
+        cuboid.forEach { wall ->
+            wall.forEach {
+                BookshelfParser[world.getBlockState(it)]?.let { bs ->
+                    blockLimits[bs.blockState]?.let { limitPair ->
+                        if (limitPair.second < limitPair.first) {
+                            enchantingPower += bs.power
+                            blockLimits[bs.blockState] = Pair(limitPair.first, limitPair.second + 1)
+                        }
+                    } ?: run {
+                        enchantingPower += bs.power
+                        blockLimits[bs.blockState] = Pair(bs.maxConsidered, 1)
+                    }
+                }
+            }
+        }
         if (ConfigHandler.debugMode && oldEnchantingPower != enchantingPower) {
             TinkeringWorkshop.logger.info("Enchanting power updated: $oldEnchantingPower -> $enchantingPower")
         }
