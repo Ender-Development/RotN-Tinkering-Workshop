@@ -7,13 +7,22 @@ import net.minecraft.util.ResourceLocation
 typealias EnchantmentLevel = Int
 typealias ExperienceLevel = Int
 typealias BookshelfPower = Double
+typealias ColorInt = Int
 
+/**
+ * Intended to be deserialized from JSON.
+ * May contain nullable fields.
+ */
 interface ISerializable
+
+/**
+ * Intended to be used after sanitization/validation.
+ * Won't contain any nullable fields.
+ */
 interface ISanitized
 
 /**
  * Representation of an enchantment configuration for the Tinkering Workshop.
- * Intended to be deserialized from JSON.
  */
 data class TWRawEnchantment(
     internal val _comment: String? = null,
@@ -38,10 +47,21 @@ data class TWRawEnchantment(
      */
     internal val blockLogic: String?,
     /**
+     * A multiplier applied to the cost of another enchantment, if this is already present on the item.
+     * The formula how this multiplier is applied can be defined in the config.
+     * If null, no cost modification is applied.
+     */
+    internal val costMultiplier: Double?,
+    /**
      * The sound that plays when this enchantment is successfully applied.
      * Format: "namespace:sound_event"
      */
     internal val sound: String?,
+    /**
+     * The color to use for the enchantment effect particles.
+     * Format: If it starts with '#', it is treated as a hex color else as an RGB integer.
+     */
+    internal val color: String?,
     /**
      * A map of enchantment levels to their corresponding costs in experience levels.
      * For example, a mapping of 1 to 5 means that level 1 of the enchantment costs 5 experience levels.
@@ -59,14 +79,15 @@ data class TWEnchantment(
     val enchantment: Enchantment,
     val blocks: List<IBlockState>,
     val blockLogic: BlockCheckLogic,
+    val costMultiplier: Double,
     val sound: ResourceLocation,
+    val color: ColorInt,
     val mapLevelCost: Map<EnchantmentLevel, ExperienceLevel>,
     val mapBookshelfPower: Map<EnchantmentLevel, BookshelfPower>,
 ) : ISanitized
 
 /**
  * Representation of a bookshelf block configuration for the Tinkering Workshop.
- * Intended to be deserialized from JSON.
  */
 data class TWRawBookshelf(
     internal val _comment: String? = null,

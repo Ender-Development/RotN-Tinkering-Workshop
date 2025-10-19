@@ -1,6 +1,8 @@
 package org.ender_development.tinkeringworkshop.config
 
 import net.minecraft.enchantment.Enchantment
+import net.minecraft.item.EnumDyeColor
+import net.minecraft.item.EnumRarity
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.Loader
 import org.ender_development.catalyx.config.ConfigParser
@@ -51,6 +53,13 @@ object EnchantmentParser : IParser<TWRawEnchantment, TWEnchantment> {
                         "single" -> BlockCheckLogic.SINGLE
                         else -> BlockCheckLogic.ANY
                     }
+                    val color = it.color?.let { color ->
+                        if (color.startsWith("#")) {
+                            color.substring(1).toIntOrNull(16)
+                        } else {
+                            color.toIntOrNull()
+                        } ?: TinkeringWorkshop.logger.error("Invalid color format for enchantment: ${it.enchantment}").let { 0xFFFFFF }
+                    } ?: 0xFFFFFF
                     val levelCost = it.mapLevelCost?.map { (level, cost) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to cost.coerceAtLeast(1) }?.toMap()
                         ?: TinkeringWorkshop.logger.error("Found an error parsing the level costs for: ${it.enchantment}").let { emptyMap<EnchantmentLevel, ExperienceLevel>() }
                     val bookshelfPower = it.mapBookshelfPower?.map { (level, power) -> level.coerceAtLeast(ench.minLevel).coerceAtMost(ench.maxLevel) to power.toDouble().coerceAtLeast(0.0) }?.toMap()
@@ -60,7 +69,9 @@ object EnchantmentParser : IParser<TWRawEnchantment, TWEnchantment> {
                         enchantment = enchantment,
                         blocks = blocks,
                         blockLogic = blockLogic,
+                        costMultiplier = it.costMultiplier?.coerceAtLeast(0.0) ?: 1.0,
                         sound = it.sound?.let { ResourceLocation(it) } ?: ResourceLocation(ConfigHandler.defaultCraftingSound),
+                        color = color,
                         mapLevelCost = levelCost,
                         mapBookshelfPower = bookshelfPower,
                     )
@@ -73,13 +84,16 @@ object EnchantmentParser : IParser<TWRawEnchantment, TWEnchantment> {
         val cfg = mutableListOf<TWRawEnchantment>()
         Enchantment.REGISTRY.forEach { ench ->
             val rarity = 10 - ench.rarity.weight
+            val color = EnumDyeColor.entries.first { c -> c.chatColor == EnumRarity.entries[ench.rarity.ordinal].color }.colorValue
             cfg.add(
                 TWRawEnchantment(
                     _comment = "This configuration is auto-generated. Modify as needed.",
                     enchantment = ench.registryName.toString(),
                     blocks = null,
                     blockLogic = null,
+                    costMultiplier = null,
                     sound = null,
+                    color = color.toString(),
                     mapLevelCost = (ench.minLevel..ench.maxLevel).associate { it to (it * rarity).coerceAtLeast(1) },
                     mapBookshelfPower = (ench.minLevel..ench.maxLevel).associate { it to (it * rarity * ench.rarity.ordinal).toDouble() },
                 ),
