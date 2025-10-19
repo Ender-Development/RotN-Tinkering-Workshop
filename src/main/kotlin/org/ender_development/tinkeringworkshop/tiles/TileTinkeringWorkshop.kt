@@ -2,10 +2,13 @@ package org.ender_development.tinkeringworkshop.tiles
 
 import net.minecraft.block.BlockBookshelf
 import net.minecraft.init.Blocks
+import net.minecraft.item.ItemEnchantedBook
+import net.minecraft.item.ItemStack
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.BlockPos
 import org.ender_development.catalyx.tiles.BaseTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
+import org.ender_development.catalyx.tiles.helper.TileStackHandler
 import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
@@ -16,17 +19,26 @@ class TileTinkeringWorkshop :
     IGuiTile,
     ITickable {
 
+    override val enableItemCapability = false
+
     init {
-        initInventoryCapability(1, 0)
+        initInventoryCapability(2, 0)
+    }
+
+    override fun initInventoryInputCapability() {
+        input = object : TileStackHandler(inputSlots, this) {
+            override fun isItemValid(slot : Int, stack : ItemStack) : Boolean {
+                return when(slot) {
+                    0 -> stack.item !is ItemEnchantedBook && stack.item.isEnchantable(stack)
+                    1 -> stack.item is ItemEnchantedBook
+                    else -> error("wtf is slot $slot out of $inputSlots")
+                }
+            }
+        }
     }
 
     override val guiWidth = 176
     override val guiHeight = 222
-
-    override fun initInventoryInputCapability() {
-        // TODO
-        super.initInventoryInputCapability()
-    }
 
     var enchantingPower = 0f
 
