@@ -1,6 +1,6 @@
 package org.ender_development.tinkeringworkshop.tiles
 
-import net.minecraft.block.BlockBookshelf
+import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemEnchantedBook
 import net.minecraft.item.ItemStack
@@ -12,7 +12,11 @@ import org.ender_development.catalyx.tiles.helper.TileStackHandler
 import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
+import org.ender_development.tinkeringworkshop.config.BookshelfParser
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
+
+typealias Limit = Int
+typealias Current = Int
 
 class TileTinkeringWorkshop :
     BaseTile(TinkeringWorkshop),
@@ -20,6 +24,8 @@ class TileTinkeringWorkshop :
     ITickable {
 
     override val enableItemCapability = false
+
+    val blockLimits = mapOf<IBlockState, Pair<Limit, Current>>()
 
     init {
         initInventoryCapability(2, 0)
@@ -38,7 +44,7 @@ class TileTinkeringWorkshop :
     override val guiWidth = 176
     override val guiHeight = 222
 
-    var enchantingPower = 0f
+    var enchantingPower = 0.0
 
     fun updateEnchantingPower() {
         val height = ConfigHandler.maxHeight - 1 // exclude the block the tile is in
@@ -49,22 +55,17 @@ class TileTinkeringWorkshop :
         if (ConfigHandler.debugMode) {
             val (wallPX, wallNX, wallPZ, wallNZ) = cuboid
             when (timesRan) {
-                1 -> wallPX.forEach { world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
-                2 -> wallNX.forEach { world.setBlockState(it, Blocks.DIAMOND_BLOCK.defaultState) }
-                3 -> wallPZ.forEach { world.setBlockState(it, Blocks.EMERALD_BLOCK.defaultState) }
-                else -> wallNZ.forEach { world.setBlockState(it, Blocks.IRON_BLOCK.defaultState) }
+                1 -> wallPX.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.GOLD_BLOCK.defaultState) }
+                2 -> wallNX.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.DIAMOND_BLOCK.defaultState) }
+                3 -> wallPZ.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.EMERALD_BLOCK.defaultState) }
+                else -> wallNZ.forEach { if (world.isAirBlock(it)) world.setBlockState(it, Blocks.IRON_BLOCK.defaultState) }
             }
         }
-        enchantingPower = 0f
-        cuboid.forEach { wall ->
-            wall.forEach {
-                val block = world.getBlockState(it).block
-                enchantingPower += when (block) {
-                    // TODO: read from config here
-                    is BlockBookshelf -> block.getEnchantPowerBonus(world, it)
-                    else -> 0f
-                }
-            }
+        val oldEnchantingPower = enchantingPower
+        enchantingPower = 0.0
+        cuboid.forEach { wall -> wall.forEach { BookshelfParser[world.getBlockState(it)]?.let { bs -> enchantingPower += bs.power } } }
+        if (ConfigHandler.debugMode && oldEnchantingPower != enchantingPower) {
+            TinkeringWorkshop.logger.info("Enchanting power updated: $oldEnchantingPower -> $enchantingPower")
         }
     }
 

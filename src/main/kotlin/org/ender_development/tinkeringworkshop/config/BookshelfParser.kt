@@ -1,5 +1,6 @@
 package org.ender_development.tinkeringworkshop.config
 
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.Loader
@@ -69,11 +70,14 @@ object BookshelfParser : IParser<TWRawBookshelf, TWBookshelf> {
         }
     }
 
-    override operator fun get(name: ResourceLocation): TWBookshelf? = dataSanitized.find { it.blockState.block.registryName == name }
+    override operator fun get(name: Any): TWBookshelf? = dataSanitized.find { it.blockState == name }
 }
 
-fun String.toBookshelf(): TWBookshelf? = ResourceLocation(this).toBookshelf()
+fun String.toBookshelf(): TWBookshelf? = BookshelfParser[ConfigParser.ConfigBlockState(this).state!!]
 
-fun ResourceLocation.toBookshelf(): TWBookshelf? = BookshelfParser.get(this)
+fun ResourceLocation.toBookshelf(): TWBookshelf? = BookshelfParser[ConfigParser.ConfigBlockState(this.toString()).state!!]
 
-fun ItemStack.toBookshelf(): TWBookshelf? = this.item.registryName?.toBookshelf() ?: TinkeringWorkshop.logger.info("No bookshelf found for item: ${this.item.registryName}").let { null }
+fun ItemStack.toBookshelf(): TWBookshelf? = (this.item is ItemBlock).let {
+    val blockState = (this.item as? ItemBlock)?.block?.defaultState
+    blockState?.let { bs -> BookshelfParser[bs] }
+}

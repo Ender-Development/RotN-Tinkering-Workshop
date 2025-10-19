@@ -2,7 +2,6 @@ package org.ender_development.tinkeringworkshop.config
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import net.minecraft.util.ResourceLocation
 import java.io.File
 
 interface IParser<R : ISerializable, S : ISanitized> {
@@ -45,5 +44,5 @@ interface IParser<R : ISerializable, S : ISanitized> {
     /**
      * Retrieves a configuration entry by its [name].
      */
-    operator fun get(name: ResourceLocation): S?
+    operator fun get(name: Any): S?
 }

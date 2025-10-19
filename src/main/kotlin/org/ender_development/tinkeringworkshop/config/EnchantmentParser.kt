@@ -108,7 +108,7 @@ object EnchantmentParser : IParser<TWRawEnchantment, TWEnchantment> {
         }
     }
 
-    override operator fun get(name: ResourceLocation): TWEnchantment? = dataSanitized.find { it.enchantment.registryName == name }
+    override operator fun get(name: Any): TWEnchantment? = dataSanitized.find { it.enchantment.registryName == name }
 }
 
 fun String.asEnchantment(): TWEnchantment? = ResourceLocation(this).asEnchantment()
