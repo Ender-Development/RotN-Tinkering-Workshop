@@ -77,7 +77,5 @@ fun String.toBookshelf(): TWBookshelf? = BookshelfParser[ConfigParser.ConfigBloc
 
 fun ResourceLocation.toBookshelf(): TWBookshelf? = BookshelfParser[ConfigParser.ConfigBlockState(this.toString()).state!!]
 
-fun ItemStack.toBookshelf(): TWBookshelf? = (this.item is ItemBlock).let {
-    val blockState = (this.item as? ItemBlock)?.block?.defaultState
-    blockState?.let { bs -> BookshelfParser[bs] }
-}
+@Suppress("DEPRECATION")
+fun ItemStack.toBookshelf(): TWBookshelf? = (this.item as? ItemBlock)?.let { item -> item.block.getStateFromMeta(this.metadata).let { bs -> BookshelfParser[bs] } }
