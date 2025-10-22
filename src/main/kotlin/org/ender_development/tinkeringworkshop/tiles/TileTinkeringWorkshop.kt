@@ -1,12 +1,16 @@
 package org.ender_development.tinkeringworkshop.tiles
 
 import net.minecraft.block.state.IBlockState
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemEnchantedBook
 import net.minecraft.item.ItemStack
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.EnumHand
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.BlockPos
-import org.ender_development.catalyx.tiles.BaseTile
+import net.minecraft.world.World
+import org.ender_development.catalyx.tiles.BaseMiddleTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
 import org.ender_development.catalyx.tiles.helper.TileStackHandler
 import org.ender_development.catalyx.utils.Delegates
@@ -22,7 +26,7 @@ typealias Current = Int
 data class BlockCount(val limit: Limit, var current: Current)
 
 class TileTinkeringWorkshop :
-    BaseTile(TinkeringWorkshop),
+    BaseMiddleTile(TinkeringWorkshop),
     IGuiTile,
     ITickable {
 
@@ -52,7 +56,7 @@ class TileTinkeringWorkshop :
     }
 
     override val guiWidth = 176
-    override val guiHeight = 222
+    override val guiHeight = 199
 
     var enchantingPower = 0.0
 
@@ -92,5 +96,10 @@ class TileTinkeringWorkshop :
             updateEnchantingPower()
             timer = 30
         }
+    }
+
+    override fun activate(world: World, pos: BlockPos, state: IBlockState, player: EntityPlayer, hand: EnumHand, side: EnumFacing, hitX: Double, hitY: Double, hitZ: Double): Boolean {
+        // Todo: Open GUI
+        return true
     }
 }

@@ -7,7 +7,7 @@ import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
 
 class ContainerTinkeringWorkshop(playerInv: IInventory, tile: TileTinkeringWorkshop) : BaseContainer(playerInv, tile) {
     init {
-        addSlotToContainer(SlotItemHandler(tile.input, 0, 14, 14))
-        addSlotToContainer(SlotItemHandler(tile.input, 1, 14, 39))
+        addSlotToContainer(SlotItemHandler(tile.input, 0, 27, 46))
+        addSlotToContainer(SlotItemHandler(tile.input, 1, 107, 46))
     }
 }
