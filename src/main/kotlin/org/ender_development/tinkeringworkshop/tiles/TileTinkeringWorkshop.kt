@@ -33,7 +33,8 @@ class TileTinkeringWorkshop :
     override val enableItemCapability = false
 
     val blockLimits = mutableMapOf<IBlockState, BlockCount>()
-    val blockPositions: Array<BlockPos> by Delegates.lazyProperty { // 1088
+    val blockPositions: Array<BlockPos> by Delegates.lazyProperty {
+        // 1088
         val height = ConfigHandler.maxHeight - 1 // exclude the block the tile is in
         val radius = (ConfigHandler.maxDiameter - 1) shr 1
         val list = mutableListOf<BlockPos>()
@@ -64,8 +65,9 @@ class TileTinkeringWorkshop :
         if (ConfigHandler.debugMode) {
             blockPositions.forEach {
                 @Suppress("DEPRECATION")
-                if (world.isAirBlock(it))
+                if (world.isAirBlock(it)) {
                     world.setBlockState(it, Blocks.CONCRETE.getStateFromMeta(14))
+                }
             }
         }
         val oldEnchantingPower = enchantingPower
@@ -74,7 +76,7 @@ class TileTinkeringWorkshop :
         blockPositions.forEach {
             BookshelfParser[world.getBlockState(it)]?.let { state ->
                 val count = blockLimits.getOrPut(state.blockState) { BlockCount(0, 0) }
-                if(count.current < count.limit) {
+                if (count.current < count.limit) {
                     enchantingPower += state.power
                     ++count.current
                 }

@@ -17,7 +17,7 @@ class BlockTinkeringWorkshop :
         "tinkering_workshop",
         TileTinkeringWorkshop::class.java,
         TinkeringWorkshop.guiHandler.registerId(TileTinkeringWorkshop::class.java, ContainerTinkeringWorkshop::class.java) { GuiTinkeringWorkshop::class.java },
-        ModBlocks.tinkeringWorkshopEdge
+        ModBlocks.tinkeringWorkshopEdge,
     ) {
     private val pixelRatio = 1.0 / 16.0
     val aabb = AxisAlignedBB(-13 * pixelRatio, .0, -13 * pixelRatio, 29 * pixelRatio, 1.0, 29 * pixelRatio)

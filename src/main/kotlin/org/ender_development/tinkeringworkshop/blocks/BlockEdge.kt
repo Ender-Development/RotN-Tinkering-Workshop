@@ -40,4 +40,3 @@ class BlockEdge : InvisibleEdge(TinkeringWorkshop, "tinkering_workshop_edge") {
         super.onEntityCollision(worldIn, pos, state, entityIn)
     }
 }
-
