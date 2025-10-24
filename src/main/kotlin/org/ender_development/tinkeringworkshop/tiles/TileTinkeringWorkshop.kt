@@ -10,7 +10,9 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import org.ender_development.catalyx.tiles.BaseMiddleTile
+import org.ender_development.catalyx.blocks.multiblock.IMultiblockCenter
+import org.ender_development.catalyx.blocks.multiblock.IMultiblockEdge
+import org.ender_development.catalyx.tiles.CenterTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
 import org.ender_development.catalyx.tiles.helper.TileStackHandler
 import org.ender_development.catalyx.utils.Delegates
@@ -26,7 +28,7 @@ typealias Current = Int
 data class BlockCount(val limit: Limit, var current: Current)
 
 class TileTinkeringWorkshop :
-    BaseMiddleTile(TinkeringWorkshop),
+    CenterTile(TinkeringWorkshop),
     IGuiTile,
     ITickable {
 
@@ -101,7 +103,12 @@ class TileTinkeringWorkshop :
     }
 
     override fun activate(world: World, pos: BlockPos, state: IBlockState, player: EntityPlayer, hand: EnumHand, side: EnumFacing, hitX: Double, hitY: Double, hitZ: Double): Boolean {
-        // Todo: Open GUI
-        return true
+        val controllerPos = (state.block as? IMultiblockEdge)?.getCenter(pos, state) ?: return false
+        val controllerBlock = world.getBlockState(controllerPos)
+        return if (controllerBlock.block !is IMultiblockCenter || player.isSneaking) {
+            false
+        } else {
+            controllerBlock.block.onBlockActivated(world, controllerPos, controllerBlock, player, hand, side, hitX.toFloat(), hitY.toFloat(), hitZ.toFloat())
+        }
     }
 }
