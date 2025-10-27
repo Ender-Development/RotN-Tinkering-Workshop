@@ -19,8 +19,8 @@ import org.ender_development.catalyx.utils.Delegates
 import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
-import org.ender_development.tinkeringworkshop.config.BookshelfParser
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
+import org.ender_development.tinkeringworkshop.parser.toBookshelf
 
 typealias Limit = Int
 typealias Current = Int
@@ -76,8 +76,8 @@ class TileTinkeringWorkshop :
         enchantingPower = 0.0
         blockLimits.clear()
         blockPositions.forEach {
-            BookshelfParser[world.getBlockState(it)]?.let { state ->
-                val count = blockLimits.getOrPut(state.blockState) { BlockCount(0, 0) }
+            world.getBlockState(it).toBookshelf()?.let { state ->
+                val count = blockLimits.getOrPut(state.blockState) { BlockCount(state.maxConsidered, 0) }
                 if (count.current < count.limit) {
                     enchantingPower += state.power
                     ++count.current

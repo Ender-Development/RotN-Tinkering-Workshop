@@ -5,9 +5,8 @@ import net.minecraft.command.ICommandSender
 import net.minecraft.server.MinecraftServer
 import net.minecraftforge.server.command.CommandTreeBase
 import org.ender_development.tinkeringworkshop.Reference
-import org.ender_development.tinkeringworkshop.config.BookshelfParser
-import org.ender_development.tinkeringworkshop.config.EnchantmentParser
-import org.ender_development.tinkeringworkshop.config.toBookshelf
+import org.ender_development.tinkeringworkshop.TinkeringWorkshop
+import org.ender_development.tinkeringworkshop.parser.toBookshelf
 
 object TWCommand : CommandTreeBase() {
     override fun getName() = Reference.MODID
@@ -27,8 +26,7 @@ object TWCommand : CommandTreeBase() {
         override fun getUsage(sender: ICommandSender) = "Reloads the Tinkering Workshop configuration files."
 
         override fun execute(server: MinecraftServer, sender: ICommandSender, args: Array<out String>) {
-            BookshelfParser.loadFromJson()
-            EnchantmentParser.loadFromJson()
+            TinkeringWorkshop.parserRegistry.refreshAll()
             notifyCommandListener(sender, this, "Tinkering Workshop configuration reloaded.")
         }
     }

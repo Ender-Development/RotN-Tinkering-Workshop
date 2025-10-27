@@ -3,6 +3,7 @@ package org.ender_development.tinkeringworkshop.config
 import net.minecraft.block.state.IBlockState
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.util.ResourceLocation
+import org.ender_development.tinkeringworkshop.parser.BlockCheckLogic
 
 typealias EnchantmentLevel = Int
 typealias ExperienceLevel = Int

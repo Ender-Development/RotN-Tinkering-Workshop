@@ -8,9 +8,9 @@ import org.ender_development.catalyx.utils.extensions.rotateY
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 
 class TWBlockCorner : InvisibleCorner(TinkeringWorkshop, "corner") {
-    override fun getAABB(state: IBlockState): AxisAlignedBB = AxisAlignedBB(3 * PIXEL_RATIO, .0, .0, 1.0, 1.0, 13 * PIXEL_RATIO).rotateY(getMetaFromState(state) % 4)
+    override fun getAABB(state: IBlockState): AxisAlignedBB = AxisAlignedBB(3 * PIXEL_RATIO, .0, .0, 1.0, 1.0, 13 * PIXEL_RATIO).rotateY(normalizeRotation(state))
 }
 
 class TWBlockSide : InvisibleSide(TinkeringWorkshop, "side") {
-    override fun getAABB(state: IBlockState): AxisAlignedBB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 13 * PIXEL_RATIO).rotateY(getMetaFromState(state) % 4)
+    override fun getAABB(state: IBlockState): AxisAlignedBB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 13 * PIXEL_RATIO).rotateY(normalizeRotation(state))
 }
