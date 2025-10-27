@@ -148,10 +148,4 @@ data class TWRawItem(
     internal val blacklist: List<String>?,
 ) : ISerializable
 
-data class TWItem(
-    val item: ItemStack,
-    val slots: Int,
-    val modifier: Double,
-    val whitelist: Set<Enchantment>,
-    val blacklist: Set<Enchantment>,
-) : ISanitized
+data class TWItem(val item: ItemStack, val slots: Int, val modifier: Double, val whitelist: Set<Enchantment>, val blacklist: Set<Enchantment>) : ISanitized

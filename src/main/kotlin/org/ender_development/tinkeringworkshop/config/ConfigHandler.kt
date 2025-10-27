@@ -19,7 +19,7 @@ object ConfigHandler {
     @Config.Comment(
         "The formula used to scale the cost of enchantments based on existing enchantments on the item.",
         "- Use 'x' as the variable for the current cost.",
-        "- Use 'n' as the variable for the number of existing enchantments on the item."
+        "- Use 'n' as the variable for the number of existing enchantments on the item.",
     )
     var costScalingFormula = "x * (1 + 0.1 * n^2)"
 
