@@ -98,7 +98,6 @@ enum class BlockCheckLogic(val identifier: String) {
     companion object {
         val identifiers = entries.map { it.identifier }
 
-        fun get(identifier: String): BlockCheckLogic =
-            entries.first { it.identifier == identifier }
+        fun get(identifier: String): BlockCheckLogic = entries.first { it.identifier == identifier }
     }
 }
