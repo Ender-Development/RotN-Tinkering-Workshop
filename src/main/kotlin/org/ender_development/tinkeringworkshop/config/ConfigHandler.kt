@@ -15,9 +15,23 @@ object ConfigHandler {
     var debugMode = false
 
     @JvmField
+    @Config.Name("Cost Scaling Formula")
+    @Config.Comment(
+        "The formula used to scale the cost of enchantments based on existing enchantments on the item.",
+        "- Use 'x' as the variable for the current cost.",
+        "- Use 'n' as the variable for the number of existing enchantments on the item."
+    )
+    var costScalingFormula = "x * (1 + 0.1 * n^2)"
+
+    @JvmField
     @Config.Name("Default Crafting Sound")
     @Config.Comment("The sound that plays when crafting is completed. Use the format 'namespace:sound_event'.")
     var defaultCraftingSound = "entity.item.pickup"
+
+    @JvmField
+    @Config.Name("Configured items only")
+    @Config.Comment("If true, only items explicitly configured will be enchantable in the Tinkering Workshop.")
+    var configuredItemsOnly = false
 
     @JvmField
     @Config.Name("Max Enchantments per Item")
