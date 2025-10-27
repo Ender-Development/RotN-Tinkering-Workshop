@@ -2,6 +2,7 @@ package org.ender_development.tinkeringworkshop.config
 
 import net.minecraft.block.state.IBlockState
 import net.minecraft.enchantment.Enchantment
+import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.ender_development.tinkeringworkshop.parser.BlockCheckLogic
 
@@ -116,3 +117,41 @@ data class TWRawBookshelf(
 ) : ISerializable
 
 data class TWBookshelf(val blockState: IBlockState, val power: BookshelfPower, val simultaneousEnchantment: Int, val maxConsidered: Int) : ISanitized
+
+data class TWRawItem(
+    internal val _comment: String? = null,
+    /**
+     * The item registry name.
+     * Format: "modid:itemname[:metadata]"
+     */
+    internal val item: String?,
+    /**
+     * The number of enchantment slots this item has when used in the Tinkering Workshop.
+     */
+    internal val slots: Int?,
+    /**
+     * A modifier applied to the enchantment cost when enchanting this item.
+     * For example, a modifier of 0.8 would reduce the cost by 20%.
+     * If null, no cost modification is applied.
+     */
+    internal val modifier: Double?,
+    /**
+     * A whitelist of enchantment registry names that can be applied to this item.
+     * If null or empty, all enchantments are allowed unless blacklisted.
+     * Format: "modid:enchantmentname"
+     */
+    internal val whitelist: List<String>?,
+    /**
+     * A blacklist of enchantment registry names that cannot be applied to this item.
+     * Format: "modid:enchantmentname"
+     */
+    internal val blacklist: List<String>?,
+) : ISerializable
+
+data class TWItem(
+    val item: ItemStack,
+    val slots: Int,
+    val modifier: Double,
+    val whitelist: Set<Enchantment>,
+    val blacklist: Set<Enchantment>,
+) : ISanitized
