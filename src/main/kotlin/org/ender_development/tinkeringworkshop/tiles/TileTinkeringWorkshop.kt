@@ -18,6 +18,7 @@ import org.ender_development.catalyx.tiles.helper.IGuiTile
 import org.ender_development.catalyx.tiles.helper.TileStackHandler
 import org.ender_development.catalyx.utils.Delegates
 import org.ender_development.catalyx.utils.extensions.getAllInBox
+import org.ender_development.catalyx.utils.extensions.getHorizontalSurroundings
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
@@ -46,7 +47,8 @@ class TileTinkeringWorkshop :
         return@lazyProperty list.toTypedArray()
     }
 
-    val highlighter = AreaHighlighter()
+    val highlighterBookshelf = AreaHighlighter()
+    val highlighterWorkshop = listOf(AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter())
 
     init {
         initInventoryCapability(2, 0)
@@ -69,7 +71,13 @@ class TileTinkeringWorkshop :
 
     fun updateEnchantingPower() {
         if (ConfigHandler.debugMode) {
-            highlighter.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 500)
+            highlighterBookshelf.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 500)
+            this.pos.getHorizontalSurroundings().forEachIndexed { idx, it ->
+                val state = world.getBlockState(it)
+                val block = state.block as IMultiblockEdge
+                val aabb = block.getAABB(state)
+                highlighterWorkshop[idx].highlightArea(it.x + aabb.minX, it.y + aabb.minY, it.z + aabb.minZ, it.x + aabb.maxX, it.y + aabb.maxY, it.z + aabb.maxZ, 1.0F, 0.0F, 0.0F, 500)
+            }
         }
         val oldEnchantingPower = enchantingPower
         enchantingPower = 0.0
