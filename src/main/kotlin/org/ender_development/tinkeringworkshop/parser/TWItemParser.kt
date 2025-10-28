@@ -48,7 +48,7 @@ class TWItemParser : AbstractJsonParser<TWRawItem, TWItem>() {
                 slots = slots,
                 costMultiplier = modifier,
                 whitelist = whitelist,
-                blacklist = blacklist
+                blacklist = blacklist,
             )
         } else {
             null

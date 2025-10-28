@@ -79,7 +79,7 @@ object TinkeringWorkshop : ICatalyxMod {
                     "${TextFormatting.DARK_PURPLE}${TextFormatting.BOLD}Tinkering Workshop Config:${TextFormatting.RESET}",
                     "${TextFormatting.DARK_PURPLE}  Max Enchantment Slots: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.slots}",
                     "${TextFormatting.DARK_PURPLE}  Cost Multiplier: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.costMultiplier}",
-                )
+                ),
             )
             if (it.whitelist.isNotEmpty()) {
                 ev.toolTip.add("${TextFormatting.DARK_PURPLE}  Whitelist:")
