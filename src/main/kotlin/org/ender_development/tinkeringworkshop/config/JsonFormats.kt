@@ -134,7 +134,7 @@ data class TWRawItem(
      * For example, a modifier of 0.8 would reduce the cost by 20%.
      * If null, no cost modification is applied.
      */
-    internal val modifier: Double?,
+    internal val costMultiplier: Double?,
     /**
      * A whitelist of enchantment registry names that can be applied to this item.
      * If null or empty, all enchantments are allowed unless blacklisted.
@@ -148,4 +148,4 @@ data class TWRawItem(
     internal val blacklist: List<String>?,
 ) : ISerializable
 
-data class TWItem(val item: ItemStack, val slots: Int, val modifier: Double, val whitelist: Set<Enchantment>, val blacklist: Set<Enchantment>) : ISanitized
+data class TWItem(val item: ItemStack, val slots: Int, val costMultiplier: Double, val whitelist: Set<Enchantment>, val blacklist: Set<Enchantment>) : ISanitized
