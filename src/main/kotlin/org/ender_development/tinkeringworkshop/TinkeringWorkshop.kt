@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry
 import org.apache.logging.log4j.Logger
 import org.ender_development.catalyx.client.gui.CatalyxGuiHandler
 import org.ender_development.catalyx.core.ICatalyxMod
+import org.ender_development.catalyx.utils.extensions.translate
 import org.ender_development.catalyx.utils.parser.ParserRegistry
 import org.ender_development.tinkeringworkshop.blocks.ModBlocks
 import org.ender_development.tinkeringworkshop.command.TWCommand
@@ -21,6 +22,7 @@ import org.ender_development.tinkeringworkshop.parser.TWBookshelfParser
 import org.ender_development.tinkeringworkshop.parser.TWEnchantmentParser
 import org.ender_development.tinkeringworkshop.parser.TWItemParser
 import org.ender_development.tinkeringworkshop.parser.toBookshelf
+import org.ender_development.tinkeringworkshop.parser.toTWItem
 
 @Mod(
     modid = Reference.MODID,
@@ -70,6 +72,23 @@ object TinkeringWorkshop : ICatalyxMod {
                     "${TextFormatting.DARK_PURPLE}${TextFormatting.BOLD}Max Considered: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${if (it.maxConsidered == Int.MAX_VALUE) "Unlimited" else it.maxConsidered}",
                 ),
             )
+        }
+        ev.itemStack.toTWItem()?.let {
+            ev.toolTip.addAll(
+                listOf(
+                    "${TextFormatting.DARK_PURPLE}${TextFormatting.BOLD}Tinkering Workshop Config:${TextFormatting.RESET}",
+                    "${TextFormatting.DARK_PURPLE}  Max Enchantment Slots: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.slots}",
+                    "${TextFormatting.DARK_PURPLE}  Cost Multiplier: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.costMultiplier}",
+                )
+            )
+            if (it.whitelist.isNotEmpty()) {
+                ev.toolTip.add("${TextFormatting.DARK_PURPLE}  Whitelist:")
+                ev.toolTip.addAll(it.whitelist.map { enchantment -> "${TextFormatting.GREEN}    ${enchantment.name.translate()}" })
+            }
+            if (it.blacklist.isNotEmpty()) {
+                ev.toolTip.add("${TextFormatting.DARK_PURPLE}  Blacklist:")
+                ev.toolTip.addAll(it.blacklist.map { enchantment -> "${TextFormatting.RED}    ${enchantment.name.translate()}" })
+            }
         }
     }
 
