@@ -22,8 +22,9 @@ class TWBookshelfParser : AbstractJsonParser<TWRawBookshelf, TWBookshelf>() {
             maxConsidered = 10,
         ),
     )
+
     override val rawTypeToken: TypeToken<List<TWRawBookshelf>> = object : TypeToken<List<TWRawBookshelf>>() {}
-    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/bookshelfs.json").path
+    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/bookshelf.json").path
 
     override fun sanitize(rawData: TWRawBookshelf): ValidationResult<TWBookshelf> = validate {
         val blockState = field(rawData.block, "block", CommonValidators.isBlockState()).get()

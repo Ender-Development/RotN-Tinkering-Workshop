@@ -21,7 +21,7 @@ import java.io.File
 
 class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>() {
     override val defaultRawData: List<TWRawEnchantment> = Enchantment.REGISTRY.map { enchantment ->
-        val rarity = 10 - enchantment.rarity.weight
+        val rarity = (10 - enchantment.rarity.weight).coerceAtLeast(1)
         val color = EnumDyeColor.entries.first { c -> c.chatColor == EnumRarity.entries[enchantment.rarity.ordinal].color }.colorValue
         TWRawEnchantment(
             _comment = "This configuration is auto-generated. Modify as needed.",
@@ -31,8 +31,8 @@ class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>(
             costMultiplier = null,
             sound = null,
             color = color.toString(),
-            mapLevelCost = (enchantment.minLevel..enchantment.maxLevel).associate { it to (it * rarity).coerceAtLeast(1) },
-            mapBookshelfPower = (enchantment.minLevel..enchantment.maxLevel).associate { it to (it * rarity * enchantment.rarity.ordinal).toDouble() },
+            mapLevelCost = (enchantment.minLevel..enchantment.maxLevel).associateWith { it * rarity },
+            mapBookshelfPower = (enchantment.minLevel..enchantment.maxLevel).associateWith { (it * rarity * (enchantment.rarity.ordinal + 1)).toDouble() },
         )
     }.toList()
 

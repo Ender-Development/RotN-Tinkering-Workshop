@@ -19,6 +19,7 @@ import org.ender_development.tinkeringworkshop.command.TWCommand
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
 import org.ender_development.tinkeringworkshop.parser.TWBookshelfParser
 import org.ender_development.tinkeringworkshop.parser.TWEnchantmentParser
+import org.ender_development.tinkeringworkshop.parser.TWItemParser
 import org.ender_development.tinkeringworkshop.parser.toBookshelf
 
 @Mod(
@@ -36,6 +37,7 @@ object TinkeringWorkshop : ICatalyxMod {
     val parserRegistry = ParserRegistry {
         parser("bookshelf", TWBookshelfParser())
         parser("enchantment", TWEnchantmentParser())
+        parser("item", TWItemParser())
     }
 
     lateinit var logger: Logger

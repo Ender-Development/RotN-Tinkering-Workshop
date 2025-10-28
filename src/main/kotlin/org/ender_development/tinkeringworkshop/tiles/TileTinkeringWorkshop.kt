@@ -2,7 +2,7 @@ package org.ender_development.tinkeringworkshop.tiles
 
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
+import net.minecraft.item.ItemBook
 import net.minecraft.item.ItemEnchantedBook
 import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import org.ender_development.catalyx.blocks.multiblock.IMultiblockCenter
 import org.ender_development.catalyx.blocks.multiblock.IMultiblockEdge
+import org.ender_development.catalyx.client.AreaHighlighter
 import org.ender_development.catalyx.tiles.CenterTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
 import org.ender_development.catalyx.tiles.helper.TileStackHandler
@@ -20,6 +21,7 @@ import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
+import org.ender_development.tinkeringworkshop.parser.isTWItem
 import org.ender_development.tinkeringworkshop.parser.toBookshelf
 
 typealias Limit = Int
@@ -44,6 +46,8 @@ class TileTinkeringWorkshop :
         return@lazyProperty list.toTypedArray()
     }
 
+    val highlighter = AreaHighlighter()
+
     init {
         initInventoryCapability(2, 0)
     }
@@ -51,7 +55,7 @@ class TileTinkeringWorkshop :
     override fun initInventoryInputCapability() {
         input = object : TileStackHandler(inputSlots, this) {
             override fun isItemValid(slot: Int, stack: ItemStack): Boolean = when (slot) {
-                0 -> stack.item !is ItemEnchantedBook && stack.item.isEnchantable(stack)
+                0 -> stack.item !is ItemEnchantedBook && stack.item !is ItemBook && stack.item.isEnchantable(stack) && !ConfigHandler.configuredItemsOnly || stack.isTWItem()
                 1 -> stack.item is ItemEnchantedBook
                 else -> error("wtf is slot $slot out of $inputSlots")
             }
@@ -65,12 +69,7 @@ class TileTinkeringWorkshop :
 
     fun updateEnchantingPower() {
         if (ConfigHandler.debugMode) {
-            blockPositions.forEach {
-                @Suppress("DEPRECATION")
-                if (world.isAirBlock(it)) {
-                    world.setBlockState(it, Blocks.CONCRETE.getStateFromMeta(14))
-                }
-            }
+            highlighter.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 500)
         }
         val oldEnchantingPower = enchantingPower
         enchantingPower = 0.0

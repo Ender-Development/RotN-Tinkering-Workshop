@@ -28,7 +28,7 @@ class TWItemParser : AbstractJsonParser<TWRawItem, TWItem>() {
     )
 
     override val rawTypeToken: TypeToken<List<TWRawItem>> = object : TypeToken<List<TWRawItem>>() {}
-    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/enchantment.json").path
+    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/item.json").path
 
     override fun sanitize(rawData: TWRawItem): ValidationResult<TWItem> = validate {
         val item = field(rawData.item, "item", CommonValidators.isItemStack()).get()
@@ -38,7 +38,7 @@ class TWItemParser : AbstractJsonParser<TWRawItem, TWItem>() {
         val blacklist = rawData.blacklist?.listEnchantment() ?: emptySet()
 
         rule(
-            whitelist.intersect(blacklist).isNotEmpty(),
+            whitelist.intersect(blacklist).isEmpty(),
             "<whitelist> and <blacklist> cannot contain the same enchantments.",
         )
 
@@ -55,7 +55,5 @@ class TWItemParser : AbstractJsonParser<TWRawItem, TWItem>() {
         }
     }
 
-    private fun List<String>.listEnchantment(): Set<Enchantment> = mapNotNull { enchName ->
-        Enchantment.REGISTRY.getObject(ResourceLocation(enchName))
-    }.toSet()
+    private fun List<String>.listEnchantment(): Set<Enchantment> = mapNotNull { Enchantment.REGISTRY.getObject(ResourceLocation(it)) }.toSet()
 }
