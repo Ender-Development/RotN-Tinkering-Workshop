@@ -17,7 +17,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     val textField = GuiTextField(1, FONT_RENDERER, 21, 36, 108, 14).apply {
         maxStringLength = 35
         enableBackgroundDrawing = false
-        setTextColor(55584671)
+        setTextColor(0x350279f)
     }
 
     init {
@@ -45,21 +45,21 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
 
     private fun drawText() {
         GlStateManager.pushMatrix()
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
-        centerString("tile.tinkeringworkshop:tinkering_workshop.name".translate(), width / 2f, guiTop + 6f, 0x303030)
+        GlStateManager.color(1f, 1f, 1f, 1f)
+        centerString("tile.${Reference.MODID}:tinkering_workshop.name".translate(), width / 2f, guiTop + 6f, 0x303030)
 
-        val strPower = String.format("%.2f", tile.enchantingPower)
+        val strPower = "%.2f".format(tile.enchantingPower)
         val lengthPower = fontRenderer.getStringWidth(strPower)
-        val scale = 21.0 / lengthPower
-        GlStateManager.scale(scale.toFloat(), scale.toFloat(), 1.0f)
-        val adjustedX = ((guiLeft + 66) * (1 / scale)).toFloat()
-        val adjustedY = ((guiTop + 60 - fontRenderer.FONT_HEIGHT) * (1 / scale)).toFloat()
+        val scale = 21f / lengthPower
+        GlStateManager.scale(scale, scale, 1f)
+        val adjustedX = (guiLeft + 66) * (1 / scale)
+        val adjustedY = (guiTop + 60 - fontRenderer.FONT_HEIGHT) * (1 / scale)
         centerString(strPower, adjustedX, adjustedY, 0xF0F0F0)
-        GlStateManager.scale((1 / scale).toFloat(), (1 / scale).toFloat(), 1.0f)
+        GlStateManager.scale(1 / scale, 1 / scale, 1f)
         GlStateManager.popMatrix()
     }
 
     private fun centerString(text: String, x: Float, y: Float, color: Int, shadow: Boolean = false) {
-        fontRenderer.drawString(text, (x - fontRenderer.getStringWidth(text) / 2), y, color, shadow)
+        fontRenderer.drawString(text, x - (fontRenderer.getStringWidth(text) shr 1), y, color, shadow)
     }
 }
