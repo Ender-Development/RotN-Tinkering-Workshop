@@ -1,7 +1,16 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "tinkeringworkshop:corner"
+    "model": "catalyx:layered_cube_merged",
+    "textures": {
+      "particle": "tinkeringworkshop:blocks/tinkering_workshop_base",
+      "down": "catalyx:blocks/null",
+      "up": "catalyx:blocks/null",
+      "north": "catalyx:blocks/null",
+      "south": "catalyx:blocks/null",
+      "east": "catalyx:blocks/null",
+      "west": "catalyx:blocks/null"
+    }
   },
   "variants": {
     "normal": [
@@ -12,15 +21,15 @@
     ],
     "facing": {
       "north": {},
-      "east": {
-        "y": 90
-      },
-      "south": {
-        "y": 180
-      },
-      "west": {
-        "y": 270
-      }
+      "east": {},
+      "south": {},
+      "west": {}
+    },
+    "position": {
+      "0": {},
+      "1": {},
+      "2": {},
+      "3": {}
     }
   }
 }

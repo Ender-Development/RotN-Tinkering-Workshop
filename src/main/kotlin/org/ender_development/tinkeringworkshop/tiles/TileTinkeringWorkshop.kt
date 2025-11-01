@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import org.ender_development.catalyx.blocks.multiblock.IMultiblockCenter
 import org.ender_development.catalyx.blocks.multiblock.IMultiblockEdge
+import org.ender_development.catalyx.blocks.multiblock.parts.AbstractEdgeBlock
 import org.ender_development.catalyx.client.AreaHighlighter
 import org.ender_development.catalyx.tiles.CenterTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
@@ -74,7 +75,7 @@ class TileTinkeringWorkshop :
             highlighterBookshelf.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 500)
             this.pos.getHorizontalSurroundings().forEachIndexed { idx, it ->
                 val state = world.getBlockState(it)
-                val block = state.block as IMultiblockEdge
+                val block = state.block as AbstractEdgeBlock
                 val aabb = block.getAABB(state)
                 highlighterWorkshop[idx].highlightArea(it.x + aabb.minX, it.y + aabb.minY, it.z + aabb.minZ, it.x + aabb.maxX, it.y + aabb.maxY, it.z + aabb.maxZ, 1.0F, 0.0F, 0.0F, 500)
             }
