@@ -5,28 +5,37 @@ import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.inventory.IInventory
 import net.minecraft.util.ResourceLocation
+import org.ender_development.catalyx.utils.RenderUtils
 import org.ender_development.catalyx.utils.RenderUtils.FONT_RENDERER
 import org.ender_development.catalyx.utils.extensions.translate
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
 import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
+import org.lwjgl.input.Keyboard
 
 class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) : GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)) {
     val textureLocation = ResourceLocation(Reference.MODID, "textures/gui/container/tinkering_workshop.png")
 
-    val textField = GuiTextField(1, FONT_RENDERER, 21, 36, 108, 14).apply {
+    val renameTextField = GuiTextField(1, FONT_RENDERER, 0, 0, 108, 14).apply {
         maxStringLength = 35
         enableBackgroundDrawing = false
-        setTextColor(0x350279f)
+        setTextColor(0x50279f) // TODO for Ender - come up with a colour
     }
 
     init {
         xSize = tile.guiWidth
         ySize = tile.guiHeight
+        Keyboard.enableRepeatEvents(true)
     }
 
     override fun initGui() {
         super.initGui()
+        renameTextField.x = guiLeft + 24
+        renameTextField.y = guiTop + 26
+    }
+
+    override fun onGuiClosed() {
+        Keyboard.enableRepeatEvents(false)
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -34,13 +43,20 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
         super.drawScreen(mouseX, mouseY, partialTicks)
         drawText()
         renderHoveredToolTip(mouseX, mouseY)
-        // textField.drawTextBox()
     }
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         GlStateManager.color(1f, 1f, 1f, 1f)
-        mc.textureManager.bindTexture(textureLocation)
+        RenderUtils.bindTexture(textureLocation)
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)
+        drawTexturedModalRect(renameTextField.x - 3, renameTextField.y - 3, 0, 199, 108, 14)
+    }
+
+    override fun drawGuiContainerForegroundLayer(mouseX : Int, mouseY : Int) {
+        // either translate, render, then translate back (current impl) or do x -= guiLeft; y -= guiTop; render; x += guiLeft; y += guiTop (to avoid gl calls)
+        GlStateManager.translate(-guiLeft.toFloat(), -guiTop.toFloat(), 0f)
+        renameTextField.drawTextBox()
+        GlStateManager.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
     }
 
     private fun drawText() {
@@ -61,5 +77,16 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
 
     private fun centerString(text: String, x: Float, y: Float, color: Int, shadow: Boolean = false) {
         fontRenderer.drawString(text, x - (fontRenderer.getStringWidth(text) shr 1), y, color, shadow)
+    }
+
+    override fun keyTyped(typedChar: Char, keyCode: Int) {
+        if (!renameTextField.textboxKeyTyped(typedChar, keyCode)) {
+            super.keyTyped(typedChar, keyCode)
+        }
+    }
+
+    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
+        super.mouseClicked(mouseX, mouseY, mouseButton)
+        renameTextField.mouseClicked(mouseX, mouseY, mouseButton)
     }
 }
