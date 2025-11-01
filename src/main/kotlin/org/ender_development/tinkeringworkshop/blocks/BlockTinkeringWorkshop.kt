@@ -30,7 +30,7 @@ class BlockTinkeringWorkshop :
 
     override fun getSoundType(state: IBlockState, world: World, pos: BlockPos, entity: Entity?): SoundType = SoundType.WOOD
 
-    override fun isFlammable(world: net.minecraft.world.IBlockAccess, pos: net.minecraft.util.math.BlockPos, face: net.minecraft.util.EnumFacing): Boolean = false
+    override fun isFlammable(world: net.minecraft.world.IBlockAccess, pos: BlockPos, face: net.minecraft.util.EnumFacing): Boolean = false
 
     @Deprecated("")
     override fun getRenderType(state: IBlockState): EnumBlockRenderType = EnumBlockRenderType.MODEL

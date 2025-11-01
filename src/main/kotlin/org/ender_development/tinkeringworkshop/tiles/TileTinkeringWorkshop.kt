@@ -5,13 +5,13 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemBook
 import net.minecraft.item.ItemEnchantedBook
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import org.ender_development.catalyx.blocks.multiblock.IMultiblockCenter
-import org.ender_development.catalyx.blocks.multiblock.IMultiblockEdge
 import org.ender_development.catalyx.blocks.multiblock.parts.AbstractEdgeBlock
 import org.ender_development.catalyx.client.AreaHighlighter
 import org.ender_development.catalyx.tiles.CenterTile
@@ -22,6 +22,7 @@ import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.extensions.getHorizontalSurroundings
 import org.ender_development.catalyx.utils.math.BlockPosUtils
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
+import org.ender_development.tinkeringworkshop.blocks.BlockTinkeringWorkshop
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
 import org.ender_development.tinkeringworkshop.parser.isTWItem
 import org.ender_development.tinkeringworkshop.parser.toBookshelf
@@ -106,17 +107,26 @@ class TileTinkeringWorkshop :
 
         if (timer-- == 0) {
             updateEnchantingPower()
+            markDirtyClient()
             timer = 30
         }
     }
 
-    override fun activate(world: World, pos: BlockPos, state: IBlockState, player: EntityPlayer, hand: EnumHand, side: EnumFacing, hitX: Double, hitY: Double, hitZ: Double): Boolean {
-        val controllerPos = (state.block as? IMultiblockEdge)?.getCenter(pos, state) ?: return false
-        val controllerBlock = world.getBlockState(controllerPos)
-        return if (controllerBlock.block !is IMultiblockCenter || player.isSneaking) {
+    override fun activate(world: World, pos: BlockPos, state: IBlockState, player: EntityPlayer, hand: EnumHand, side: EnumFacing, hitX: Double, hitY: Double, hitZ: Double): Boolean =
+        if (state.block !is IMultiblockCenter || player.isSneaking) {
             false
         } else {
-            controllerBlock.block.onBlockActivated(world, controllerPos, controllerBlock, player, hand, side, hitX.toFloat(), hitY.toFloat(), hitZ.toFloat())
+            (state.block as BlockTinkeringWorkshop).onBlockActivated(world, pos, state, player, hand, side, hitX.toFloat(), hitY.toFloat(), hitZ.toFloat())
         }
+
+    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
+        super.writeToNBT(compound)
+        compound.setDouble("enchantingPower", enchantingPower)
+        return compound
+    }
+
+    override fun readFromNBT(compound: NBTTagCompound) {
+        super.readFromNBT(compound)
+        enchantingPower = compound.getDouble("enchantingPower")
     }
 }
