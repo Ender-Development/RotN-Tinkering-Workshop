@@ -3,18 +3,28 @@ package org.ender_development.tinkeringworkshop.client.gui
 import net.minecraft.client.gui.GuiTextField
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.inventory.Container
+import net.minecraft.inventory.IContainerListener
 import net.minecraft.inventory.IInventory
+import net.minecraft.item.ItemStack
+import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import org.ender_development.catalyx.client.container.BaseContainer.Companion.PLAYER_INVENTORY_SIZE
 import org.ender_development.catalyx.utils.RenderUtils
 import org.ender_development.catalyx.utils.RenderUtils.FONT_RENDERER
 import org.ender_development.catalyx.utils.extensions.translate
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
+import org.ender_development.tinkeringworkshop.network.PacketHandler
+import org.ender_development.tinkeringworkshop.network.RenamePacket
 import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
 import org.lwjgl.input.Keyboard
 
-class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) : GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)) {
+class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) :
+    GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)),
+    IContainerListener {
     val textureLocation = ResourceLocation(Reference.MODID, "textures/gui/container/tinkering_workshop.png")
+    val container = inventorySlots as ContainerTinkeringWorkshop
 
     val renameTextField = GuiTextField(1, FONT_RENDERER, 0, 0, 108, 14).apply {
         maxStringLength = 35
@@ -32,6 +42,8 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
         super.initGui()
         renameTextField.x = guiLeft + 24
         renameTextField.y = guiTop + 26
+        container.removeListener(this)
+        container.addListener(this)
     }
 
     override fun onGuiClosed() {
@@ -82,11 +94,46 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         if (!renameTextField.textboxKeyTyped(typedChar, keyCode)) {
             super.keyTyped(typedChar, keyCode)
+        } else {
+            renameItem()
         }
+    }
+
+    private fun renameItem() {
+        // update client-side
+        val stack = container.getSlot(PLAYER_INVENTORY_SIZE).stack
+        val name = renameTextField.text
+        if (name.isBlank()) {
+            stack.clearCustomName()
+        } else {
+            stack.setStackDisplayName(name)
+        }
+
+        // update server-side
+        PacketHandler.channel.sendToServer(RenamePacket(name))
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
         super.mouseClicked(mouseX, mouseY, mouseButton)
         renameTextField.mouseClicked(mouseX, mouseY, mouseButton)
     }
+
+    override fun sendAllContents(containerToSend: Container, itemsList: NonNullList<ItemStack?>) {
+        sendSlotContents(containerToSend, PLAYER_INVENTORY_SIZE, containerToSend.getSlot(PLAYER_INVENTORY_SIZE).stack)
+    }
+
+    override fun sendSlotContents(containerToSend: Container, slotInd: Int, stack: ItemStack) {
+        if (slotInd != PLAYER_INVENTORY_SIZE) {
+            return
+        }
+
+        if (renameTextField.text != stack.displayName) {
+            renameTextField.text = if (stack.isEmpty) "" else stack.displayName
+        }
+        renameTextField.setEnabled(!stack.isEmpty)
+    }
+
+    // no-op
+    override fun sendWindowProperty(containerIn: Container, varToUpdate: Int, newValue: Int) {}
+    override fun sendAllWindowProperties(containerIn: Container, inventory: IInventory) {}
 }

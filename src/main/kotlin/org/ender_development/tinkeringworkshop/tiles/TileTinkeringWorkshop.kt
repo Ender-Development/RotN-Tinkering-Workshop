@@ -11,6 +11,8 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.ITickable
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.relauncher.SideOnly
 import org.ender_development.catalyx.blocks.multiblock.IMultiblockCenter
 import org.ender_development.catalyx.blocks.multiblock.parts.AbstractEdgeBlock
 import org.ender_development.catalyx.client.AreaHighlighter
@@ -18,6 +20,7 @@ import org.ender_development.catalyx.tiles.CenterTile
 import org.ender_development.catalyx.tiles.helper.IGuiTile
 import org.ender_development.catalyx.tiles.helper.TileStackHandler
 import org.ender_development.catalyx.utils.Delegates
+import org.ender_development.catalyx.utils.SideUtils
 import org.ender_development.catalyx.utils.extensions.getAllInBox
 import org.ender_development.catalyx.utils.extensions.getHorizontalSurroundings
 import org.ender_development.catalyx.utils.math.BlockPosUtils
@@ -49,11 +52,18 @@ class TileTinkeringWorkshop :
         return@lazyProperty list.toTypedArray()
     }
 
-    val highlighterBookshelf = AreaHighlighter()
-    val highlighterWorkshop = listOf(AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter())
+    @SideOnly(Side.CLIENT)
+    lateinit var highlighterBookshelf: AreaHighlighter
+
+    @SideOnly(Side.CLIENT)
+    lateinit var highlighterWorkshop: Array<AreaHighlighter>
 
     init {
         initInventoryCapability(2, 0)
+        if (SideUtils.isDedicatedClient) {
+            highlighterBookshelf = AreaHighlighter()
+            highlighterWorkshop = arrayOf(AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter())
+        }
     }
 
     override fun initInventoryInputCapability() {
@@ -72,7 +82,7 @@ class TileTinkeringWorkshop :
     var enchantingPower = 0.0
 
     fun updateEnchantingPower() {
-        if (ConfigHandler.debugMode) {
+        if (ConfigHandler.debugMode && SideUtils.isDedicatedClient) {
             highlighterBookshelf.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 500)
             this.pos.getHorizontalSurroundings().forEachIndexed { idx, it ->
                 val state = world.getBlockState(it)

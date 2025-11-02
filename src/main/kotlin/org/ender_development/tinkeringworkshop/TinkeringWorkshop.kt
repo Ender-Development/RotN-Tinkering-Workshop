@@ -11,6 +11,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.NetworkRegistry
+import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.relauncher.SideOnly
 import org.apache.logging.log4j.Logger
 import org.ender_development.catalyx.client.gui.CatalyxGuiHandler
 import org.ender_development.catalyx.core.ICatalyxMod
@@ -19,6 +21,7 @@ import org.ender_development.catalyx.utils.parser.ParserRegistry
 import org.ender_development.tinkeringworkshop.blocks.ModBlocks
 import org.ender_development.tinkeringworkshop.command.TWCommand
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
+import org.ender_development.tinkeringworkshop.network.PacketHandler
 import org.ender_development.tinkeringworkshop.parser.TWBookshelfParser
 import org.ender_development.tinkeringworkshop.parser.TWEnchantmentParser
 import org.ender_development.tinkeringworkshop.parser.TWItemParser
@@ -51,6 +54,7 @@ object TinkeringWorkshop : ICatalyxMod {
         logger = ev.modLog
         NetworkRegistry.INSTANCE.registerGuiHandler(TinkeringWorkshop, guiHandler)
         MinecraftForge.EVENT_BUS.register(this)
+        PacketHandler.init()
     }
 
     @Mod.EventHandler
@@ -64,6 +68,7 @@ object TinkeringWorkshop : ICatalyxMod {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     fun tooltip(ev: ItemTooltipEvent) {
         if (!ConfigHandler.debugMode) return
         ev.itemStack.toBookshelf()?.let {

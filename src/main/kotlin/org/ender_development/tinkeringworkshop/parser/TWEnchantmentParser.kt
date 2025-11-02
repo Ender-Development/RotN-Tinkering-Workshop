@@ -2,15 +2,14 @@ package org.ender_development.tinkeringworkshop.parser
 
 import com.google.gson.reflect.TypeToken
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.item.EnumDyeColor
-import net.minecraft.item.EnumRarity
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.Loader
 import org.ender_development.catalyx.config.ConfigParser
+import org.ender_development.catalyx.utils.extensions.colorValue
+import org.ender_development.catalyx.utils.extensions.enumRarity
 import org.ender_development.catalyx.utils.extensions.validate
 import org.ender_development.catalyx.utils.parser.AbstractJsonParser
 import org.ender_development.catalyx.utils.validation.CommonValidators
-import org.ender_development.catalyx.utils.validation.IValidator
 import org.ender_development.catalyx.utils.validation.ValidationResult
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
@@ -22,7 +21,7 @@ import java.io.File
 class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>() {
     override val defaultRawData: List<TWRawEnchantment> = Enchantment.REGISTRY.map { enchantment ->
         val rarity = (10 - enchantment.rarity.weight).coerceAtLeast(1)
-        val color = EnumDyeColor.entries.first { c -> c.chatColor == EnumRarity.entries[enchantment.rarity.ordinal].color }.colorValue
+        val color = enchantment.rarity.enumRarity.colorValue
         TWRawEnchantment(
             _comment = "This configuration is auto-generated. Modify as needed.",
             enchantment = enchantment.registryName.toString(),
@@ -32,7 +31,7 @@ class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>(
             sound = null,
             color = color.toString(),
             mapLevelCost = (enchantment.minLevel..enchantment.maxLevel).associateWith { it * rarity },
-            mapBookshelfPower = (enchantment.minLevel..enchantment.maxLevel).associateWith { (it * rarity * (enchantment.rarity.ordinal + 1)).toDouble() },
+            mapBookshelfPower = (enchantment.minLevel..enchantment.maxLevel).associateWith { it * rarity * (enchantment.rarity.ordinal + 1.0) },
         )
     }.toList()
 
@@ -40,10 +39,10 @@ class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>(
     override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/enchantment.json").path
 
     override fun sanitize(rawData: TWRawEnchantment): ValidationResult<TWEnchantment> = validate {
-        val enchantment = field(rawData.enchantment, "enchantment", CommonValidators.notEmpty(), IValidator { Enchantment.REGISTRY.getObject(ResourceLocation(it!!)) != null }).get()
+        val enchantment = field(rawData.enchantment, "enchantment", CommonValidators.notEmpty(), { Enchantment.REGISTRY.getObject(ResourceLocation(it!!)) != null }).get()
         val blocks = rawData.blocks ?: emptyList()
         val blockLogic = rawData.blockLogic ?: "any"
-        val costMultiplier = rawData.costMultiplier?.coerceAtLeast(0.0) ?: 1.0
+        val costMultiplier = rawData.costMultiplier?.coerceAtLeast(.0) ?: 1.0
         val sound = rawData.sound ?: ConfigHandler.defaultCraftingSound
         val color = rawData.color ?: "#FFFFFF"
         val mapLevelCost = rawData.mapLevelCost ?: emptyMap()
