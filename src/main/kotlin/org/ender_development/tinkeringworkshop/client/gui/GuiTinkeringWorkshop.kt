@@ -52,7 +52,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
         drawTexturedModalRect(renameTextField.x - 3, renameTextField.y - 3, 0, 199, 108, 14)
     }
 
-    override fun drawGuiContainerForegroundLayer(mouseX : Int, mouseY : Int) {
+    override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
         // either translate, render, then translate back (current impl) or do x -= guiLeft; y -= guiTop; render; x += guiLeft; y += guiTop (to avoid gl calls)
         GlStateManager.translate(-guiLeft.toFloat(), -guiTop.toFloat(), 0f)
         renameTextField.drawTextBox()

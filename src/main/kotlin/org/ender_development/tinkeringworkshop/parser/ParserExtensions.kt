@@ -1,6 +1,7 @@
 package org.ender_development.tinkeringworkshop.parser
 
 import net.minecraft.block.state.IBlockState
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
@@ -14,6 +15,8 @@ import org.ender_development.tinkeringworkshop.config.TWItem
 fun String.asEnchantment(): TWEnchantment? = TinkeringWorkshop.parserRegistry.getData<TWEnchantment>("enchantment")?.firstOrNull { it.enchantment.registryName.toString() == this }
 
 fun ResourceLocation.asEnchantment(): TWEnchantment? = this.toString().asEnchantment()
+
+fun ItemStack.getEnchantments(): List<TWEnchantment> = EnchantmentHelper.getEnchantments(this).keys.mapNotNull { it.registryName?.asEnchantment() }
 
 // Bookshelf extensions
 fun String.toBookshelf(): TWBookshelf? = TinkeringWorkshop.parserRegistry.getData<TWBookshelf>("bookshelf")?.firstOrNull { it.blockState == ConfigParser.ConfigBlockState(this).state }

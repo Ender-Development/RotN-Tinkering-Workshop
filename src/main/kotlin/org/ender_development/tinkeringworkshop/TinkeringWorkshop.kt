@@ -1,6 +1,7 @@
 package org.ender_development.tinkeringworkshop
 
 import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.item.ItemEnchantedBook
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
@@ -21,6 +22,7 @@ import org.ender_development.tinkeringworkshop.config.ConfigHandler
 import org.ender_development.tinkeringworkshop.parser.TWBookshelfParser
 import org.ender_development.tinkeringworkshop.parser.TWEnchantmentParser
 import org.ender_development.tinkeringworkshop.parser.TWItemParser
+import org.ender_development.tinkeringworkshop.parser.getEnchantments
 import org.ender_development.tinkeringworkshop.parser.toBookshelf
 import org.ender_development.tinkeringworkshop.parser.toTWItem
 
@@ -88,6 +90,21 @@ object TinkeringWorkshop : ICatalyxMod {
             if (it.blacklist.isNotEmpty()) {
                 ev.toolTip.add("${TextFormatting.DARK_PURPLE}  Blacklist:")
                 ev.toolTip.addAll(it.blacklist.map { enchantment -> "${TextFormatting.RED}    ${enchantment.name.translate()}" })
+            }
+        }
+        (ev.itemStack.item as? ItemEnchantedBook).let {
+            val enchantments = ev.itemStack.getEnchantments()
+            enchantments.forEach {
+                ev.toolTip.add(
+                    "${TextFormatting.DARK_PURPLE}${TextFormatting.BOLD}Enchantment Config for ${it.enchantment.name.translate()}:${TextFormatting.RESET}",
+                )
+                ev.toolTip.addAll(
+                    listOf(
+                        "${TextFormatting.DARK_PURPLE}  Color: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.color}",
+                        "${TextFormatting.DARK_PURPLE}  Bookshelf Logic: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.blockLogic}",
+                        "${TextFormatting.DARK_PURPLE}  Cost Multiplier: ${TextFormatting.RESET}${TextFormatting.LIGHT_PURPLE}${it.costMultiplier}",
+                    ),
+                )
             }
         }
     }
