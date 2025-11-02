@@ -83,12 +83,12 @@ class TileTinkeringWorkshop :
 
     fun updateEnchantingPower() {
         if (ConfigHandler.debugMode && SideUtils.isDedicatedClient) {
-            highlighterBookshelf.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 500)
+            highlighterBookshelf.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 5000)
             this.pos.getHorizontalSurroundings().forEachIndexed { idx, it ->
                 val state = world.getBlockState(it)
                 val block = state.block as AbstractEdgeBlock
                 val aabb = block.getAABB(state)
-                highlighterWorkshop[idx].highlightArea(it.x + aabb.minX, it.y + aabb.minY, it.z + aabb.minZ, it.x + aabb.maxX, it.y + aabb.maxY, it.z + aabb.maxZ, 1.0F, 0.0F, 0.0F, 500)
+                highlighterWorkshop[idx].highlightArea(it.x + aabb.minX, it.y + aabb.minY, it.z + aabb.minZ, it.x + aabb.maxX, it.y + aabb.maxY, it.z + aabb.maxZ, 1.0F, 0.0F, 0.0F, 5000)
             }
         }
         val oldEnchantingPower = enchantingPower

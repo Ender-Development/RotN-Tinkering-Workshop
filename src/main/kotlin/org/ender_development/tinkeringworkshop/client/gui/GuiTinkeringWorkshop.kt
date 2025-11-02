@@ -12,6 +12,7 @@ import net.minecraft.util.ResourceLocation
 import org.ender_development.catalyx.client.container.BaseContainer.Companion.PLAYER_INVENTORY_SIZE
 import org.ender_development.catalyx.utils.RenderUtils
 import org.ender_development.catalyx.utils.RenderUtils.FONT_RENDERER
+import org.ender_development.catalyx.utils.extensions.get
 import org.ender_development.catalyx.utils.extensions.translate
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
@@ -29,7 +30,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     val renameTextField = GuiTextField(1, FONT_RENDERER, 0, 0, 108, 14).apply {
         maxStringLength = 35
         enableBackgroundDrawing = false
-        setTextColor(0x50279f) // TODO for Ender - come up with a colour
+        setTextColor(0xff80ba)
     }
 
     init {
@@ -53,37 +54,37 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
         super.drawScreen(mouseX, mouseY, partialTicks)
-        drawText()
         renderHoveredToolTip(mouseX, mouseY)
+        // note to Ender: do not draw anything here, use drawGuiContainer{Foreground/Background}Layer instead as those have the correct gl state; you can delete this comment after you read it ;p
     }
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         GlStateManager.color(1f, 1f, 1f, 1f)
         RenderUtils.bindTexture(textureLocation)
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)
-        drawTexturedModalRect(renameTextField.x - 3, renameTextField.y - 3, 0, 199, 108, 14)
+        drawTexturedModalRect(renameTextField.x - 3, renameTextField.y - 3, 0, if(renameTextField.isEnabled) 199 else 213, 108, 14)
     }
 
     override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {
-        // either translate, render, then translate back (current impl) or do x -= guiLeft; y -= guiTop; render; x += guiLeft; y += guiTop (to avoid gl calls)
-        GlStateManager.translate(-guiLeft.toFloat(), -guiTop.toFloat(), 0f)
+        renameTextField.x -= guiLeft
+        renameTextField.y -= guiTop
         renameTextField.drawTextBox()
-        GlStateManager.translate(guiLeft.toFloat(), guiTop.toFloat(), 0f)
+        renameTextField.x += guiLeft
+        renameTextField.y += guiTop
+        drawText()
     }
 
     private fun drawText() {
         GlStateManager.pushMatrix()
         GlStateManager.color(1f, 1f, 1f, 1f)
-        centerString("tile.${Reference.MODID}:tinkering_workshop.name".translate(), width / 2f, guiTop + 6f, 0x303030)
+        centerString("tile.${Reference.MODID}:tinkering_workshop.name".translate(), -guiLeft + width / 2f, 6f, 0x303030)
 
         val strPower = "%.2f".format(tile.enchantingPower)
         val lengthPower = fontRenderer.getStringWidth(strPower)
         val scale = 21f / lengthPower
+        val inverseScale = 1 / scale
         GlStateManager.scale(scale, scale, 1f)
-        val adjustedX = (guiLeft + 66) * (1 / scale)
-        val adjustedY = (guiTop + 60 - fontRenderer.FONT_HEIGHT) * (1 / scale)
-        centerString(strPower, adjustedX, adjustedY, 0xF0F0F0)
-        GlStateManager.scale(1 / scale, 1 / scale, 1f)
+        centerString(strPower, 66 * inverseScale, (60 - fontRenderer.FONT_HEIGHT) * inverseScale, 0xaf80ba)
         GlStateManager.popMatrix()
     }
 
@@ -101,7 +102,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
 
     private fun renameItem() {
         // update client-side
-        val stack = container.getSlot(PLAYER_INVENTORY_SIZE).stack
+        val stack = container[0].stack
         val name = renameTextField.text
         if (name.isBlank()) {
             stack.clearCustomName()
@@ -119,7 +120,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     }
 
     override fun sendAllContents(containerToSend: Container, itemsList: NonNullList<ItemStack?>) {
-        sendSlotContents(containerToSend, PLAYER_INVENTORY_SIZE, containerToSend.getSlot(PLAYER_INVENTORY_SIZE).stack)
+        sendSlotContents(containerToSend, PLAYER_INVENTORY_SIZE, containerToSend[0].stack)
     }
 
     override fun sendSlotContents(containerToSend: Container, slotInd: Int, stack: ItemStack) {
