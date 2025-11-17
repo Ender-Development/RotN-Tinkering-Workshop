@@ -4,11 +4,13 @@ import org.jetbrains.gradle.ext.runConfigurations
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
 import plugins.DepLoader
-import plugins.Loader
 import plugins.Logger
 import plugins.PropSync
+import plugins.ScriptSync
 import plugins.Secrets
 import util.EnumConfiguration
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 loadDefaultSetup()
 
@@ -18,6 +20,8 @@ plugins {
     id("catalyx.secrets")
     id("catalyx.deploader")
     id("catalyx.propsync")
+    id("catalyx.buildfilesync")
+    id("catalyx.referencecreator") apply false
     id("java")
     id("java-library")
     id("maven-publish")
@@ -40,7 +44,7 @@ checkPropertyExists("minecraft_version")
 propertyDefaultIfUnsetWithEnvVar("minecraft_username", "DEV_USERNAME", "Developer")
 
 // Utilities
-checkSubPropertiesExist("use_tags", "tag_class_name")
+checkSubPropertiesExist("use_tags", "tags_package")
 checkSubPropertiesExist("use_access_transformer", "access_transformer_locations")
 checkSubPropertiesExist("is_coremod", "coremod_includes_mod", "coremod_plugin_class_name")
 
@@ -85,14 +89,14 @@ minecraft {
     extraRunJvmArguments.addAll(propertyStringList("extra_jvm_args", delimiter = ";"))
 
     if (propertyBoolean("use_tags")) {
-        val props = Loader.loadPropertyFromFile("tags.properties")
-        if (props.isNotEmpty()) {
-            injectedTags.set(props.map { it.key.toString() to evaluate(it.value.toString()) }.toMap())
-        }
+        apply(plugin = "catalyx.referencecreator")
     }
 }
 
+Logger.banner("Configuring Repositories")
 loadDefaultRepositories()
+
+Logger.banner("Configuring Dependencies")
 loadDefaultDependencies()
 
 // These are only here as I can't get RetroFuturaGradle to work in our buildSrc
@@ -156,27 +160,29 @@ if (propertyBoolean("use_spotless")) {
             endWithNewline()
         }
 
-        kotlin {
-            target("src/*/kotlin/**/*.kt", "buildSrc/src/**/*.kt")
-            ktlint(propertyString("ktlint_version"))
-        }
+        if (propertyString("editorconfig") == "spotless") {
+            kotlin {
+                target("src/*/kotlin/**/*.kt", "buildSrc/src/**/*.kt")
+                ktlint(propertyString("ktlint_version"))
+            }
 
-        kotlinGradle {
-            target("*.gradle.kts", "buildSrc/src/**/*.gradle.kts")
-            ktlint(propertyString("ktlint_version"))
-        }
+            kotlinGradle {
+                target("*.gradle.kts", "buildSrc/src/**/*.gradle.kts")
+                ktlint(propertyString("ktlint_version"))
+            }
 
-        java {
-            target("src/*/java/**/*.java")
-            removeUnusedImports()
-            forbidWildcardImports()
-            googleJavaFormat(propertyString("google_java_format_version"))
-            formatAnnotations()
-        }
+            java {
+                target("src/*/java/**/*.java")
+                removeUnusedImports()
+                forbidWildcardImports()
+                googleJavaFormat(propertyString("google_java_format_version"))
+                formatAnnotations()
+            }
 
-        json {
-            target("src/*/resources/**/*.json")
-            gson().indentWithSpaces(2)
+            json {
+                target("src/*/resources/**/*.json")
+                gson().indentWithSpaces(2)
+            }
         }
 
         freshmark {
@@ -185,13 +191,11 @@ if (propertyBoolean("use_spotless")) {
         }
 
         flexmark {
-            target(".github/**/*.md", "docs/**/*.md", "src/*/resources/**/*.md", "*.md")
+            target(".github/**/*.md", "docs/**/*.md", "src/*/resources/**/*.md")
             flexmark(propertyString("flexmark_version"))
         }
     }
 }
-
-tasks.injectTags.configure { outputClassName = propertyString("tag_class_name") }
 
 tasks.withType<ProcessResources> {
     // This will ensure that this task is redone when the versions change
@@ -228,6 +232,10 @@ tasks.withType<ProcessResources> {
     }
 }
 
+tasks.withType<Javadoc> {
+    exclude("**/package-info.java")
+}
+
 tasks.withType<Jar> {
     manifest {
         val attributeMap = mutableMapOf<String, String>()
@@ -254,12 +262,24 @@ tasks.withType<JavaCompile> { options.encoding = "UTF-8" }
 tasks.register("catalyxAfterSync") {
     group = "catalyx"
     description = "Task that runs after the template has been synced. Can be used for custom actions."
-    dependsOn("injectTags")
+    dependsOn("switchEditorConfig", "catalyxReference")
+}
+
+tasks.register("catalyxReference") {
+    group = "catalyx"
+    description = "Generates the Reference.kt file from tags.properties."
+    doLast {
+        if (propertyBoolean("use_tags")) {
+            apply(plugin = "catalyx.referencecreator")
+        } else {
+            Logger.warn("Property 'use_tags' is false; skipping Reference.kt generation.")
+        }
+    }
 }
 
 tasks.named("prepareObfModsFolder").configure { finalizedBy("prioritizeCoremods") }
 
-tasks.named("processIdeaSettings").configure { dependsOn("injectTags") }
+tasks.named("processIdeaSettings").configure { dependsOn("catalyxReference") }
 
 tasks.register("prioritizeCoremods") {
     dependsOn("prepareObfModsFolder")
@@ -274,9 +294,10 @@ tasks.register("prioritizeCoremods") {
 
 tasks.register("syncTemplate") {
     group = "catalyx"
-    description = "Syncs the project properties with the remote template properties."
+    description = "Syncs the project properties and buildscript files with the remote template properties."
     doLast {
         PropSync.syncPropertiesFromTemplate()
+        ScriptSync.syncFilesFromTemplate()
     }
 }
 
@@ -305,6 +326,29 @@ runTasks.forEach {
     }
 }
 
+tasks.register("switchEditorConfig") {
+    group = "catalyx"
+    description = "Switches the .editorconfig file based on the 'editorconfig' property."
+    val spotlessEditorConfig = file("$projectDir/buildSrc/src/main/resources/.editorconfig.spotless")
+    val rozEditorConfig = file("$projectDir/buildSrc/src/main/resources/.editorconfig.roz")
+
+    val destination = file("$projectDir/.editorconfig")
+
+    doFirst {
+        val sourceFile = when (propertyString("editorconfig")) {
+            "spotless" -> spotlessEditorConfig
+            "roz" -> rozEditorConfig
+            else -> throw IllegalArgumentException("Unknown editorConfigType: ${propertyString("editorconfig")}")
+        }
+        if (!sourceFile.exists()) {
+            throw GradleException("Source .editorconfig file '${sourceFile.path}' does not exist!")
+        }
+        Logger.info("Switching .editorconfig to use '${sourceFile.name}'")
+        Files.copy(sourceFile.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+
+Logger.banner("Configuring IDEA")
 idea {
     module {
         inheritOutputDirs = true

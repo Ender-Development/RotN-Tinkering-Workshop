@@ -1,13 +1,12 @@
 package plugins
 
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import util.OnlineUtils
+import util.OnlineUtils.isOnline
+import util.OnlineUtils.shouldDisableSync
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.net.SocketTimeoutException
-import java.net.URI
-import java.net.UnknownHostException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.Properties
@@ -16,11 +15,6 @@ class PropSync : Plugin<Project> {
     data class SyncConfig(val keysToSync: List<String> = emptyList(), val syncAll: Boolean = false)
 
     companion object {
-        const val TEMPLATE_REPO = "Ender-Development/Catalyx-Template"
-        const val TEMPLATE_BRANCH = "master"
-        const val GITHUB_RAW_URL = "https://raw.githubusercontent.com"
-        const val CONNECTION_TIMEOUT = 5000 // 5 seconds
-
         private var foundUpdate = false
         private lateinit var project: Project
 
@@ -55,59 +49,14 @@ class PropSync : Plugin<Project> {
         )
 
         fun syncPropertiesFromTemplate() {
+            Logger.banner("Searching for Properties to sync!")
             if (shouldDisableSync()) return Logger.info("Sync is disabled via system.")
             if (!isOnline()) return Logger.warn("No internet connection detected.")
             performSync()
         }
 
-        private fun shouldDisableSync(): Boolean {
-            if (isTemplateProject()) {
-                Logger.info("Current project is the template project, skipping sync.")
-                return true
-            }
-
-            if (Secrets.getOrEnvironment("SYNC_TEMPLATE")?.toBoolean() == false) {
-                Logger.info("SYNC_TEMPLATE is set to false, skipping sync.")
-                return true
-            }
-
-            return false
-        }
-
-        private fun isTemplateProject(): Boolean {
-            val repo = FileRepositoryBuilder()
-                .setGitDir(File(".git"))
-                .readEnvironment()
-                .findGitDir()
-                .build()
-            val remoteUrl = repo.config.getString("remote", "origin", "url")
-            Logger.info("Remote URL detected: $remoteUrl")
-            return remoteUrl.contains("Ender-Development/Catalyx-Template")
-        }
-
-        private fun isOnline(): Boolean {
-            try {
-                val connection = URI.create("https://api.github.com").toURL().openConnection()
-                connection.connectTimeout = CONNECTION_TIMEOUT
-                connection.readTimeout = CONNECTION_TIMEOUT
-                connection.connect()
-                connection.inputStream.close()
-                Logger.info("Internet connection detected.")
-                return true
-            } catch (e: UnknownHostException) {
-                Logger.error("No internet connection: ${e.message}")
-                return false
-            } catch (e: SocketTimeoutException) {
-                Logger.error("Connection timed out: ${e.message}")
-                return false
-            } catch (e: Exception) {
-                Logger.error("Error checking internet connection: ${e.message}")
-                return false
-            }
-        }
-
         private fun performSync() {
-            Logger.info("Syncing with template repository: $TEMPLATE_REPO")
+            Logger.info("Syncing with template repository: ${OnlineUtils.TEMPLATE_REPO}")
             syncConfig.forEach { (file, cfg) ->
                 try {
                     val templateProperties = fetchTemplateProperties(file)
@@ -127,29 +76,19 @@ class PropSync : Plugin<Project> {
         }
 
         private fun fetchTemplateProperties(fileName: PropertyFile): Properties {
-            val url = "$GITHUB_RAW_URL/$TEMPLATE_REPO/$TEMPLATE_BRANCH/buildSrc/src/main/resources/$fileName"
+            val url = "${OnlineUtils.GITHUB_RAW_URL}/${OnlineUtils.TEMPLATE_REPO}/${OnlineUtils.TEMPLATE_BRANCH}/buildSrc/src/main/resources/$fileName"
             val properties = Properties()
-            try {
-                val connection = URI.create(url).toURL().openConnection()
-                connection.connectTimeout = CONNECTION_TIMEOUT
-                connection.readTimeout = CONNECTION_TIMEOUT
-
-                val content = connection.getInputStream().use { it.readBytes().toString(Charsets.UTF_8) }
-                properties.load(ByteArrayInputStream(content.toByteArray()))
-                Logger.info("Fetched template properties from '$url'")
-            } catch (e: Exception) {
-                Logger.error("Error fetching template properties from '$url': ${e.message}")
-                throw e
-            }
-
+            val content = OnlineUtils.fetchFileContent(url) ?: throw Exception("Failed to fetch content from $url")
+            properties.load(ByteArrayInputStream(content.toByteArray()))
+            Logger.info("Fetched template properties from '$url'")
             return properties
         }
 
         private fun mergeProperties(local: Properties, remote: Properties, cfg: SyncConfig): Properties {
             val merged = Properties()
-            local.forEach { key, value -> merged[key] = value }
+            local.forEach { (key, value) -> merged[key] = value }
             if (cfg.syncAll) {
-                remote.forEach { key, value ->
+                remote.forEach { (key, value) ->
                     if (local.getProperty(key.toString()) != value.toString()) {
                         Logger.info("Updating property '$key': ${local.getProperty(key.toString())} -> '$value'")
                         foundUpdate = true
@@ -212,7 +151,7 @@ class PropSync : Plugin<Project> {
                     }
                 }
                 // Add any new properties that were not in the existing file
-                properties.forEach { key, value ->
+                properties.forEach { (key, value) ->
                     if (key.toString() !in updatedKeys) {
                         lines.add("$key = $value")
                     }
@@ -220,7 +159,7 @@ class PropSync : Plugin<Project> {
             } else {
                 Logger.warn("File '${file.name}' does not exist. Creating a new one.")
                 lines.add("# Properties file created by Sync plugin on ${java.time.LocalDateTime.now()}")
-                properties.forEach { key, value ->
+                properties.forEach { (key, value) ->
                     lines.add("$key = $value")
                 }
             }
