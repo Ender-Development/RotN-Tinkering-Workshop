@@ -62,7 +62,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
         GlStateManager.color(1f, 1f, 1f, 1f)
         RenderUtils.bindTexture(textureLocation)
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize)
-        drawTexturedModalRect(renameTextField.x - 3, renameTextField.y - 3, 0, if(renameTextField.isEnabled) 199 else 213, 108, 14)
+        drawTexturedModalRect(renameTextField.x - 3, renameTextField.y - 3, 0, if (renameTextField.isEnabled) 199 else 213, 108, 14)
     }
 
     override fun drawGuiContainerForegroundLayer(mouseX: Int, mouseY: Int) {

@@ -37,7 +37,7 @@ class ReferenceCreator : Plugin<Project> {
             }.replace("\r\n", "\n") // Normalize line endings
             val outputPath = "src/main/kotlin/${project.propertyString("tags_package").replace(".", "/")}/${objectName}Reference.kt"
             val outputFile = Path(outputPath)
-            if(outputFile.notExists()) {
+            if (outputFile.notExists()) {
                 outputFile.parent.createDirectories()
                 outputFile.createFile()
             }
