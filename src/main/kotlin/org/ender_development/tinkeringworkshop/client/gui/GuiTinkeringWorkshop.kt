@@ -19,7 +19,9 @@ import org.ender_development.tinkeringworkshop.network.RenamePacket
 import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
 import org.lwjgl.input.Keyboard
 
-class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) : GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)), IContainerListener {
+class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) :
+    GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)),
+    IContainerListener {
     val textureLocation = ResourceLocation(Reference.MODID, "textures/gui/container/tinkering_workshop.png")
     val container = inventorySlots as ContainerTinkeringWorkshop
 

@@ -70,7 +70,7 @@ class TileTinkeringWorkshop :
     override fun initInventoryInputCapability() {
         input = object : TileStackHandler(inputSlots, this) {
             override fun isItemValid(slot: Int, stack: ItemStack): Boolean = when (slot) {
-                0 -> stack.item !is ItemEnchantedBook && stack.item !is ItemBook && stack.item.isEnchantable(stack) && !ConfigHandler.configuredItemsOnly || stack.isTWItem()
+                0 -> ((stack.item !is ItemEnchantedBook) && (stack.item !is ItemBook) && stack.item.isEnchantable(stack) && !ConfigHandler.configuredItemsOnly) || stack.isTWItem()
                 1 -> stack.item is ItemEnchantedBook
                 else -> error("wtf is slot $slot out of $inputSlots")
             }
