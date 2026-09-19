@@ -5,8 +5,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
-import org.ender_development.catalyx.utils.extensions.readString
-import org.ender_development.catalyx.utils.extensions.writeString
+import org.ender_development.catalyx.api.v1.common.extensions.readString
+import org.ender_development.catalyx.api.v1.common.extensions.writeString
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
 
 class RenamePacket() : IMessage {

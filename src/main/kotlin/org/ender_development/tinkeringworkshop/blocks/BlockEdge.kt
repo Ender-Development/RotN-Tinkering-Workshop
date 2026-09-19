@@ -9,9 +9,9 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.IBlockAccess
 import net.minecraft.world.World
-import org.ender_development.catalyx.blocks.multiblock.parts.InvisibleCorner
-import org.ender_development.catalyx.blocks.multiblock.parts.InvisibleSide
-import org.ender_development.catalyx.utils.extensions.rotateY
+import org.ender_development.catalyx.api.v1.common.extensions.rotateY
+import org.ender_development.catalyx.core.common.blocks.multiblock.parts.InvisibleCorner
+import org.ender_development.catalyx.core.common.blocks.multiblock.parts.InvisibleSide
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 
 open class TWBlockCorner : InvisibleCorner(TinkeringWorkshop, "corner") {

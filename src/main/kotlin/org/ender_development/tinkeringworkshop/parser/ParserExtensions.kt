@@ -5,7 +5,7 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
-import org.ender_development.catalyx.config.ConfigParser
+import org.ender_development.catalyx.api.v1.common.extensions.toBlockState
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import org.ender_development.tinkeringworkshop.config.TWBookshelf
 import org.ender_development.tinkeringworkshop.config.TWEnchantment
@@ -19,7 +19,7 @@ fun ResourceLocation.asEnchantment(): TWEnchantment? = this.toString().asEnchant
 fun ItemStack.getEnchantments(): List<TWEnchantment> = EnchantmentHelper.getEnchantments(this).keys.mapNotNull { it.registryName?.asEnchantment() }
 
 // Bookshelf extensions
-fun String.toBookshelf(): TWBookshelf? = TinkeringWorkshop.parserRegistry.getData<TWBookshelf>("bookshelf")?.firstOrNull { it.blockState == ConfigParser.ConfigBlockState(this).state }
+fun String.toBookshelf(): TWBookshelf? = TinkeringWorkshop.parserRegistry.getData<TWBookshelf>("bookshelf")?.firstOrNull { it.blockState == toBlockState() }
 
 fun ResourceLocation.toBookshelf(): TWBookshelf? = this.toString().toBookshelf()
 

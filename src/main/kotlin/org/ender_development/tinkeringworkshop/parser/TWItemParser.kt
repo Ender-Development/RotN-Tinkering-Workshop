@@ -4,11 +4,11 @@ import com.google.gson.reflect.TypeToken
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.Loader
-import org.ender_development.catalyx.config.ConfigParser
-import org.ender_development.catalyx.utils.extensions.validate
-import org.ender_development.catalyx.utils.parser.AbstractJsonParser
-import org.ender_development.catalyx.utils.validation.CommonValidators
-import org.ender_development.catalyx.utils.validation.ValidationResult
+import org.ender_development.catalyx.api.v1.common.extensions.toStack
+import org.ender_development.catalyx.api.v1.common.extensions.validate
+import org.ender_development.catalyx.api.v1.validation.CommonValidators
+import org.ender_development.catalyx.core.utils.parser.AbstractJsonParser
+import org.ender_development.catalyx.core.validation.ValidationResult
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
 import org.ender_development.tinkeringworkshop.config.TWItem
@@ -28,7 +28,7 @@ class TWItemParser : AbstractJsonParser<TWRawItem, TWItem>() {
     )
 
     override val rawTypeToken: TypeToken<List<TWRawItem>> = object : TypeToken<List<TWRawItem>>() {}
-    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/item.json").path
+    override val input: String = File(Loader.instance().configDir, "/${Reference.MODID}/item.json").path
 
     override fun sanitize(rawData: TWRawItem): ValidationResult<TWItem> = validate {
         val item = field(rawData.item, "item", CommonValidators.isItemStack()).get()
@@ -38,13 +38,13 @@ class TWItemParser : AbstractJsonParser<TWRawItem, TWItem>() {
         val blacklist = rawData.blacklist?.listEnchantment() ?: emptySet()
 
         rule(
-            whitelist.intersect(blacklist).isEmpty(),
+            (whitelist intersect blacklist).isEmpty(),
             "<whitelist> and <blacklist> cannot contain the same enchantments.",
         )
 
         if (!hasErrors()) {
             TWItem(
-                item = ConfigParser.ConfigItemStack(item!!).toItemStack(),
+                item = item!!.toStack(),
                 slots = slots,
                 costMultiplier = modifier,
                 whitelist = whitelist,

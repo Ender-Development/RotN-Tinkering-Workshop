@@ -13,17 +13,18 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import org.ender_development.catalyx.blocks.multiblock.IMultiblockCenter
-import org.ender_development.catalyx.blocks.multiblock.parts.AbstractEdgeBlock
-import org.ender_development.catalyx.client.AreaHighlighter
-import org.ender_development.catalyx.tiles.CenterTile
-import org.ender_development.catalyx.tiles.helper.IGuiTile
-import org.ender_development.catalyx.tiles.helper.TileStackHandler
-import org.ender_development.catalyx.utils.Delegates
-import org.ender_development.catalyx.utils.SideUtils
-import org.ender_development.catalyx.utils.extensions.getAllInBox
-import org.ender_development.catalyx.utils.extensions.getHorizontalSurroundings
-import org.ender_development.catalyx.utils.math.BlockPosUtils
+import org.ender_development.catalyx.api.v1.client.Client
+import org.ender_development.catalyx.api.v1.client.interfaces.IAreaHighlighter
+import org.ender_development.catalyx.api.v1.common.extensions.getAllInBox
+import org.ender_development.catalyx.api.v1.common.extensions.getHorizontalSurroundings
+import org.ender_development.catalyx.api.v1.common.tileentities.TileStackHandler
+import org.ender_development.catalyx.api.v1.common.tileentities.interfaces.IGuiTile
+import org.ender_development.catalyx.api.v1.utils.Utils
+import org.ender_development.catalyx.core.common.blocks.multiblock.IMultiblockCenter
+import org.ender_development.catalyx.core.common.blocks.multiblock.parts.AbstractEdgeBlock
+import org.ender_development.catalyx.core.common.tileentities.multiblock.CenterTile
+import org.ender_development.catalyx.core.utils.BlockPosUtils
+import org.ender_development.catalyx.core.utils.Delegates
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import org.ender_development.tinkeringworkshop.blocks.BlockTinkeringWorkshop
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
@@ -53,16 +54,16 @@ class TileTinkeringWorkshop :
     }
 
     @SideOnly(Side.CLIENT)
-    lateinit var highlighterBookshelf: AreaHighlighter
+    lateinit var highlighterBookshelf: IAreaHighlighter
 
     @SideOnly(Side.CLIENT)
-    lateinit var highlighterWorkshop: Array<AreaHighlighter>
+    lateinit var highlighterWorkshop: Array<IAreaHighlighter>
 
     init {
         initInventoryCapability(2, 0)
-        if (SideUtils.isDedicatedClient) {
-            highlighterBookshelf = AreaHighlighter()
-            highlighterWorkshop = arrayOf(AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter(), AreaHighlighter())
+        if (Utils.environment.isDedicatedClient) {
+            highlighterBookshelf = Client.newAreaHighlighter()
+            highlighterWorkshop = Array(8) { Client.newAreaHighlighter() }
         }
     }
 
@@ -82,7 +83,7 @@ class TileTinkeringWorkshop :
     var enchantingPower = 0.0
 
     fun updateEnchantingPower() {
-        if (ConfigHandler.debugMode && SideUtils.isDedicatedClient) {
+        if (ConfigHandler.debugMode && Utils.environment.isDedicatedClient) {
             highlighterBookshelf.highlightBlocks(blockPositions, 0.5F, 0.5F, 1.0F, 5000)
             this.pos.getHorizontalSurroundings().forEachIndexed { idx, it ->
                 val state = world.getBlockState(it)

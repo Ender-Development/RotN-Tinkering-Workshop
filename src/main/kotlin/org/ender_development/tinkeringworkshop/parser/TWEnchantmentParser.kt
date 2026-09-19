@@ -4,13 +4,13 @@ import com.google.gson.reflect.TypeToken
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.Loader
-import org.ender_development.catalyx.config.ConfigParser
-import org.ender_development.catalyx.utils.extensions.colorValue
-import org.ender_development.catalyx.utils.extensions.enumRarity
-import org.ender_development.catalyx.utils.extensions.validate
-import org.ender_development.catalyx.utils.parser.AbstractJsonParser
-import org.ender_development.catalyx.utils.validation.CommonValidators
-import org.ender_development.catalyx.utils.validation.ValidationResult
+import org.ender_development.catalyx.api.v1.common.extensions.colorValue
+import org.ender_development.catalyx.api.v1.common.extensions.enumRarity
+import org.ender_development.catalyx.api.v1.common.extensions.toBlockState
+import org.ender_development.catalyx.api.v1.common.extensions.validate
+import org.ender_development.catalyx.api.v1.validation.CommonValidators
+import org.ender_development.catalyx.core.utils.parser.AbstractJsonParser
+import org.ender_development.catalyx.core.validation.ValidationResult
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.config.ConfigHandler
 import org.ender_development.tinkeringworkshop.config.TWEnchantment
@@ -36,7 +36,7 @@ class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>(
     }.toList()
 
     override val rawTypeToken: TypeToken<List<TWRawEnchantment>> = object : TypeToken<List<TWRawEnchantment>>() {}
-    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/enchantment.json").path
+    override val input: String = File(Loader.instance().configDir, "/${Reference.MODID}/enchantment.json").path
 
     override fun sanitize(rawData: TWRawEnchantment): ValidationResult<TWEnchantment> = validate {
         val enchantment = field(rawData.enchantment, "enchantment", CommonValidators.notEmpty(), { Enchantment.REGISTRY.getObject(ResourceLocation(it!!)) != null }).get()
@@ -72,7 +72,7 @@ class TWEnchantmentParser : AbstractJsonParser<TWRawEnchantment, TWEnchantment>(
         if (!hasErrors()) {
             TWEnchantment(
                 enchantment = ench,
-                blocks = blocks.mapNotNull { ConfigParser.ConfigBlockState(it).state },
+                blocks = blocks.mapNotNull(String::toBlockState),
                 blockLogic = BlockCheckLogic.get(blockLogic),
                 costMultiplier = costMultiplier,
                 sound = ResourceLocation(sound),

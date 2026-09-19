@@ -9,11 +9,9 @@ import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
-import org.ender_development.catalyx.client.container.BaseContainer.Companion.PLAYER_INVENTORY_SIZE
-import org.ender_development.catalyx.utils.RenderUtils
-import org.ender_development.catalyx.utils.RenderUtils.FONT_RENDERER
-import org.ender_development.catalyx.utils.extensions.get
-import org.ender_development.catalyx.utils.extensions.translate
+import org.ender_development.catalyx.api.v1.common.extensions.get
+import org.ender_development.catalyx.api.v1.common.extensions.translate
+import org.ender_development.catalyx.core.utils.RenderUtils
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
 import org.ender_development.tinkeringworkshop.network.PacketHandler
@@ -21,13 +19,11 @@ import org.ender_development.tinkeringworkshop.network.RenamePacket
 import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
 import org.lwjgl.input.Keyboard
 
-class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) :
-    GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)),
-    IContainerListener {
+class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) : GuiContainer(ContainerTinkeringWorkshop(playerInv, tile)), IContainerListener {
     val textureLocation = ResourceLocation(Reference.MODID, "textures/gui/container/tinkering_workshop.png")
     val container = inventorySlots as ContainerTinkeringWorkshop
 
-    val renameTextField = GuiTextField(1, FONT_RENDERER, 0, 0, 108, 14).apply {
+    val renameTextField = GuiTextField(1, fontRenderer, 0, 0, 108, 14).apply {
         maxStringLength = 35
         enableBackgroundDrawing = false
         setTextColor(0xff80ba)
@@ -120,11 +116,11 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     }
 
     override fun sendAllContents(containerToSend: Container, itemsList: NonNullList<ItemStack?>) {
-        sendSlotContents(containerToSend, PLAYER_INVENTORY_SIZE, containerToSend[0].stack)
+        sendSlotContents(containerToSend, 0, containerToSend[0].stack) // TODO figure out the constant here, previously it was PLAYER_INVENTORY_SIZE, 36, but that part of Catalyx has changed a bit
     }
 
     override fun sendSlotContents(containerToSend: Container, slotInd: Int, stack: ItemStack) {
-        if (slotInd != PLAYER_INVENTORY_SIZE) {
+        if (slotInd != 0) { // TODO figure out the constant here, previously it was PLAYER_INVENTORY_SIZE, 36, but that part of Catalyx has changed a bit
             return
         }
 

@@ -2,11 +2,11 @@ package org.ender_development.tinkeringworkshop.parser
 
 import com.google.gson.reflect.TypeToken
 import net.minecraftforge.fml.common.Loader
-import org.ender_development.catalyx.config.ConfigParser
-import org.ender_development.catalyx.utils.extensions.validate
-import org.ender_development.catalyx.utils.parser.AbstractJsonParser
-import org.ender_development.catalyx.utils.validation.CommonValidators
-import org.ender_development.catalyx.utils.validation.ValidationResult
+import org.ender_development.catalyx.api.v1.common.extensions.toBlockState
+import org.ender_development.catalyx.api.v1.common.extensions.validate
+import org.ender_development.catalyx.api.v1.validation.CommonValidators
+import org.ender_development.catalyx.core.utils.parser.AbstractJsonParser
+import org.ender_development.catalyx.core.validation.ValidationResult
 import org.ender_development.tinkeringworkshop.Reference
 import org.ender_development.tinkeringworkshop.config.TWBookshelf
 import org.ender_development.tinkeringworkshop.config.TWRawBookshelf
@@ -24,7 +24,7 @@ class TWBookshelfParser : AbstractJsonParser<TWRawBookshelf, TWBookshelf>() {
     )
 
     override val rawTypeToken: TypeToken<List<TWRawBookshelf>> = object : TypeToken<List<TWRawBookshelf>>() {}
-    override val filePath: String = File(Loader.instance().configDir, "/${Reference.MODID}/bookshelf.json").path
+    override val input: String = File(Loader.instance().configDir, "/${Reference.MODID}/bookshelf.json").path
 
     override fun sanitize(rawData: TWRawBookshelf): ValidationResult<TWBookshelf> = validate {
         val blockState = field(rawData.block, "block", CommonValidators.isBlockState()).get()
@@ -34,7 +34,7 @@ class TWBookshelfParser : AbstractJsonParser<TWRawBookshelf, TWBookshelf>() {
 
         if (!hasErrors()) {
             TWBookshelf(
-                blockState = ConfigParser.ConfigBlockState(blockState!!).state!!,
+                blockState = blockState!!.toBlockState()!!,
                 power = power!!,
                 simultaneousEnchantment = simultaneousEnchantment,
                 maxConsidered = maxConsidered,

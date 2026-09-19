@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import org.ender_development.catalyx.blocks.multiblock.CenterBlock
+import org.ender_development.catalyx.core.common.blocks.multiblock.CenterBlock
 import org.ender_development.tinkeringworkshop.TinkeringWorkshop
 import org.ender_development.tinkeringworkshop.client.container.ContainerTinkeringWorkshop
 import org.ender_development.tinkeringworkshop.client.gui.GuiTinkeringWorkshop

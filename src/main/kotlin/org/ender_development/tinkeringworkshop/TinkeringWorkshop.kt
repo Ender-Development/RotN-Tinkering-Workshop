@@ -14,10 +14,10 @@ import net.minecraftforge.fml.common.network.NetworkRegistry
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import org.apache.logging.log4j.Logger
-import org.ender_development.catalyx.client.gui.CatalyxGuiHandler
-import org.ender_development.catalyx.core.ICatalyxMod
-import org.ender_development.catalyx.utils.extensions.translate
-import org.ender_development.catalyx.utils.parser.ParserRegistry
+import org.ender_development.catalyx.api.v1.ICatalyxMod
+import org.ender_development.catalyx.api.v1.common.extensions.translate
+import org.ender_development.catalyx.core.client.gui.CatalyxGuiHandler
+import org.ender_development.catalyx.core.utils.parser.ParserRegistry
 import org.ender_development.tinkeringworkshop.blocks.ModBlocks
 import org.ender_development.tinkeringworkshop.command.TWCommand
 import org.ender_development.tinkeringworkshop.config.ConfigHandler

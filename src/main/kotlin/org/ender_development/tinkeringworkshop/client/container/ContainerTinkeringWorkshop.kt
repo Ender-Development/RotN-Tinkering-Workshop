@@ -2,8 +2,8 @@ package org.ender_development.tinkeringworkshop.client.container
 
 import net.minecraft.inventory.IInventory
 import net.minecraftforge.items.SlotItemHandler
-import org.ender_development.catalyx.client.container.BaseContainer
-import org.ender_development.catalyx.utils.extensions.get
+import org.ender_development.catalyx.api.v1.common.extensions.get
+import org.ender_development.catalyx.core.client.container.BaseContainer
 import org.ender_development.tinkeringworkshop.tiles.TileTinkeringWorkshop
 
 class ContainerTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorkshop) : BaseContainer(playerInv, tile) {
