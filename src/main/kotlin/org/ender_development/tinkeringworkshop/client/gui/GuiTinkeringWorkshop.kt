@@ -25,7 +25,7 @@ class GuiTinkeringWorkshop(playerInv: IInventory, val tile: TileTinkeringWorksho
     val textureLocation = ResourceLocation(Reference.MODID, "textures/gui/container/tinkering_workshop.png")
     val container = inventorySlots as ContainerTinkeringWorkshop
 
-    val renameTextField = GuiTextField(1, fontRenderer, 0, 0, 108, 14).apply {
+    val renameTextField = GuiTextField(1, RenderUtils.fontRenderer, 0, 0, 108, 14).apply {
         maxStringLength = 35
         enableBackgroundDrawing = false
         setTextColor(0xff80ba)
